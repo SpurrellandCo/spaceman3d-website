@@ -518,12 +518,13 @@
       .hero-h1 { font-size: clamp(1.6rem, 8vw, 2.6rem) !important; letter-spacing: 0.08em; }
       .hero-sub { font-size: 0.7rem !important; letter-spacing: 0.2em; }
 
-      /* Side nav becomes single column at bottom on phones */
-      .nav-wrapper { align-items: flex-end; padding-bottom: 5rem; }
-      .nav-side { gap: 8px; flex-direction: row; flex-wrap: wrap; justify-content: center; }
-      .nav-side.left, .nav-side.right { margin: 0 auto; width: 100%; padding: 0 12px; align-items: center; }
+      /* Side nav — unified 2-col grid at bottom on phones */
+      .nav-wrapper { display: grid; grid-template-columns: 1fr 1fr; align-content: end; align-items: center; gap: 8px; padding: 0 12px 5rem; }
+      .nav-side { display: contents; }
+      .nav-side.left, .nav-side.right { display: contents; }
       .nav-side.right .nav-item { flex-direction: row; }
-      .nav-item { width: calc(50% - 4px); padding: 8px 10px; min-width: 0; }
+      .nav-item { width: 100%; padding: 8px 10px; min-width: 0; }
+      .nav-item:last-child { grid-column: 1 / -1; width: calc(50% - 4px); justify-self: center; }
       .nav-icon { width: 22px; height: 22px; }
       .nav-label { font-size: 10px; letter-spacing: 0.06em; }
       .nav-sublabel { font-size: 8px; }
