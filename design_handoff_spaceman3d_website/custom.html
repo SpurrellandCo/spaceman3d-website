@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Custom Print — SPACEMAN3D</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-deep:       #08080F;
+      --bg-surface:    #0F1020;
+      --bg-raised:     #161830;
+      --bg-overlay:    #1A1C35;
+      --blue-500:      #2979FF;
+      --blue-400:      #5B9BFF;
+      --blue-300:      #90BAFF;
+      --blue-600:      #1565C0;
+      --fg1:           #E8EDF5;
+      --fg2:           #B0BBCC;
+      --fg3:           #8892A4;
+      --fg4:           #556070;
+      --border:        #1E2040;
+      --border-strong: #262850;
+      --border-accent: rgba(41,121,255,0.45);
+      --glow-sm:       0 0 12px rgba(41,121,255,0.25);
+      --glow-md:       0 0 24px rgba(41,121,255,0.35);
+      --glow-cta:      0 0 20px rgba(41,121,255,0.55), 0 4px 24px rgba(0,0,0,0.5);
+      --font-display:  'Orbitron', sans-serif;
+      --font-body:     'Inter', sans-serif;
+      --font-mono:     'Space Mono', monospace;
+      --radius-sm:     6px;
+      --radius-md:     12px;
+      --radius-lg:     16px;
+      --radius-full:   9999px;
+      --transition:    150ms ease-out;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg-deep);
+      color: var(--fg1);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── STAR CANVAS ── */
+    #starsCanvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      background: rgba(8,8,15,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .header-logo img {
+      width: 36px; height: 36px;
+      filter: drop-shadow(0 0 10px rgba(41,121,255,0.5));
+    }
+    .header-wordmark {
+      font-family: var(--font-display);
+      font-size: 18px; font-weight: 800;
+      color: #fff;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .header-wordmark span { color: var(--blue-500); }
+    .header-back {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-body);
+      font-size: 12px; font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--fg3);
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: color var(--transition);
+      padding: 6px 0;
+    }
+    .header-back:hover { color: var(--blue-400); }
+    .header-back svg {
+      width: 14px; height: 14px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* ── PAGE LAYOUT ── */
+    .page {
+      position: relative;
+      z-index: 1;
+      padding-top: 64px;
+      min-height: 100vh;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      padding: 72px 64px 56px;
+      overflow: hidden;
+    }
+    .hero-glow {
+      position: absolute;
+      top: -80px; left: 50%;
+      transform: translateX(-50%);
+      width: 700px; height: 400px;
+      background: radial-gradient(ellipse, rgba(41,121,255,0.14) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(41,121,255,0.1);
+      border: 1px solid rgba(41,121,255,0.3);
+      border-radius: var(--radius-full);
+      padding: 5px 14px;
+      margin-bottom: 20px;
+    }
+    .hero-badge-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--blue-500);
+      box-shadow: 0 0 8px rgba(41,121,255,0.9);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 8px rgba(41,121,255,0.9); }
+      50% { box-shadow: 0 0 16px rgba(41,121,255,1), 0 0 24px rgba(41,121,255,0.5); }
+    }
+    .hero-badge-text {
+      font-family: var(--font-body);
+      font-size: 11px; font-weight: 700;
+      color: var(--blue-400);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2.4rem, 5vw, 4rem);
+      font-weight: 900;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      line-height: 1.05;
+      margin-bottom: 16px;
+    }
+    .hero h1 span { color: var(--blue-500); }
+    .hero p {
+      font-size: 16px;
+      color: var(--fg3);
+      line-height: 1.65;
+      max-width: 520px;
+    }
+
+    /* ── FORM SECTION ── */
+    .form-section {
+      padding: 0 64px 80px;
+      max-width: 1100px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .form-grid .full { grid-column: 1 / -1; }
+
+    /* ── FIELD GROUP ── */
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .field-label {
+      font-family: var(--font-body);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--fg3);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .field-label .required {
+      color: var(--blue-500);
+      font-size: 14px;
+      line-height: 1;
+    }
+    .field-hint {
+      font-size: 11px;
+      color: var(--fg4);
+      margin-top: -4px;
+    }
+
+    /* ── INPUTS ── */
+    .input, .textarea, .select {
+      width: 100%;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--fg1);
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+      -webkit-appearance: none;
+    }
+    .input::placeholder, .textarea::placeholder { color: var(--fg4); }
+    .input:focus, .textarea:focus, .select:focus {
+      border-color: var(--blue-500);
+      background: var(--bg-raised);
+      box-shadow: var(--glow-sm);
+    }
+    .textarea {
+      resize: vertical;
+      min-height: 100px;
+      line-height: 1.6;
+    }
+    .select {
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238892A4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 36px;
+    }
+    .select option {
+      background: var(--bg-raised);
+      color: var(--fg1);
+    }
+
+    /* ── CONTACT ROW ── */
+    .input-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    /* ── MATERIAL CHIPS ── */
+    .chip-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: var(--radius-full);
+      border: 1.5px solid var(--border-strong);
+      background: transparent;
+      color: var(--fg3);
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .chip:hover {
+      border-color: var(--blue-400);
+      color: var(--blue-400);
+      background: rgba(41,121,255,0.06);
+    }
+    .chip.active {
+      border-color: var(--blue-500);
+      background: rgba(41,121,255,0.12);
+      color: var(--blue-400);
+      box-shadow: var(--glow-sm);
+    }
+    .chip-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ── COLOR SWATCHES ── */
+    .swatch-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    .swatch {
+      width: 32px; height: 32px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all var(--transition);
+      position: relative;
+    }
+    .swatch:hover { transform: scale(1.12); }
+    .swatch.active {
+      border-color: var(--blue-500);
+      box-shadow: 0 0 0 3px rgba(41,121,255,0.25);
+    }
+    .swatch.active::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.15);
+    }
+
+    /* ── QUANTITY STEPPER ── */
+    .qty-stepper {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      width: fit-content;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: var(--bg-surface);
+    }
+    .qty-btn {
+      width: 44px; height: 44px;
+      background: none;
+      border: none;
+      color: var(--fg3);
+      font-size: 20px;
+      font-weight: 300;
+      cursor: pointer;
+      transition: color var(--transition), background var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .qty-btn:hover { color: var(--blue-400); background: rgba(41,121,255,0.08); }
+    .qty-val {
+      min-width: 56px;
+      text-align: center;
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--fg1);
+      border-left: 1px solid var(--border-strong);
+      border-right: 1px solid var(--border-strong);
+      padding: 0 4px;
+      height: 44px;
+      line-height: 44px;
+    }
+
+    /* ── BUDGET SLIDER ── */
+    .budget-track {
+      position: relative;
+      padding: 8px 0;
+    }
+    .budget-slider {
+      width: 100%;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--border-strong);
+      outline: none;
+      cursor: pointer;
+    }
+    .budget-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: var(--blue-500);
+      border: 2px solid var(--bg-deep);
+      box-shadow: 0 0 10px rgba(41,121,255,0.6);
+      cursor: pointer;
+    }
+    .budget-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+    }
+    .budget-labels span {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--fg4);
+    }
+    .budget-value {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--blue-400);
+      margin-bottom: 8px;
+    }
+
+    /* ── FILE UPLOAD ── */
+    .upload-zone {
+      border: 1.5px dashed var(--border-strong);
+      border-radius: var(--radius-lg);
+      padding: 32px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all var(--transition);
+      background: var(--bg-surface);
+      position: relative;
+    }
+    .upload-zone:hover, .upload-zone.drag-over {
+      border-color: var(--blue-500);
+      background: rgba(41,121,255,0.05);
+      box-shadow: var(--glow-sm);
+    }
+    .upload-zone input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+    .upload-icon {
+      width: 40px; height: 40px;
+      margin: 0 auto 12px;
+      background: rgba(41,121,255,0.1);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .upload-icon svg {
+      width: 20px; height: 20px;
+      stroke: var(--blue-400);
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .upload-title {
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--fg1);
+      margin-bottom: 4px;
+    }
+    .upload-sub {
+      font-size: 12px;
+      color: var(--fg4);
+    }
+    .upload-sub strong { color: var(--blue-400); font-weight: 600; }
+    .upload-file-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .upload-file-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-raised);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+      font-size: 13px;
+      color: var(--fg2);
+    }
+    .upload-file-item svg {
+      width: 14px; height: 14px;
+      stroke: var(--blue-400);
+      fill: none;
+      stroke-width: 2;
+      flex-shrink: 0;
+    }
+
+    /* ── SUBMIT ROW ── */
+    .submit-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding-top: 8px;
+    }
+    .submit-note {
+      font-size: 12px;
+      color: var(--fg4);
+      line-height: 1.6;
+      max-width: 360px;
+    }
+    .submit-note strong { color: var(--fg3); }
+    .btn-launch {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 14px 40px;
+      border-radius: var(--radius-full);
+      background: var(--blue-500);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      box-shadow: var(--glow-cta);
+      transition: all var(--transition);
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .btn-launch:hover {
+      background: var(--blue-400);
+      box-shadow: 0 0 32px rgba(41,121,255,0.7), 0 4px 24px rgba(0,0,0,0.5);
+      transform: translateY(-1px);
+    }
+    .btn-launch:active {
+      transform: scale(0.97) translateY(0);
+      background: var(--blue-600);
+    }
+    .btn-launch svg {
+      width: 16px; height: 16px;
+      fill: currentColor;
+    }
+
+    /* ── SECTION DIVIDER ── */
+    .section-divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 28px 0 24px;
+      grid-column: 1 / -1;
+    }
+    .section-divider-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .section-divider-label {
+      font-family: var(--font-display);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--fg4);
+      white-space: nowrap;
+    }
+
+    /* ── SUCCESS STATE ── */
+    .success-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(8,8,15,0.92);
+      backdrop-filter: blur(12px);
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      text-align: center;
+      gap: 24px;
+    }
+    .success-overlay.show { display: flex; animation: fadeIn 0.4s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .success-icon {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: rgba(41,121,255,0.12);
+      border: 1.5px solid var(--blue-500);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--glow-md);
+      animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes popIn { from { transform: scale(0.5); opacity:0; } to { transform: scale(1); opacity:1; } }
+    .success-icon svg {
+      width: 36px; height: 36px;
+      stroke: var(--blue-400);
+      fill: none;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .success-title {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 900;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .success-title span { color: var(--blue-500); }
+    .success-sub {
+      font-size: 15px;
+      color: var(--fg3);
+      line-height: 1.65;
+      max-width: 380px;
+    }
+    .success-back {
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 12px 32px;
+      border-radius: var(--radius-full);
+      background: rgba(41,121,255,0.15);
+      border: 1.5px solid rgba(41,121,255,0.4);
+      color: var(--blue-400);
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .success-back:hover {
+      background: rgba(41,121,255,0.25);
+      box-shadow: var(--glow-sm);
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-deep); }
+    ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<canvas id="starsCanvas"></canvas>
+
+<!-- Success overlay -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-icon">
+    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+  </div>
+  <div class="success-title">WE'RE <span>LAUNCHED!</span></div>
+  <p class="success-sub">Your custom print request is in orbit. We'll contact you within 24 hours to confirm your mission specs.</p>
+  <button class="success-back" onclick="document.getElementById('successOverlay').classList.remove('show')">Back to Form</button>
+</div>
+
+<div class="page">
+
+  <!-- Header -->
+  <header class="header">
+    <a class="header-logo" href="index.html">
+      <img src="assets/spaceman-helmet.png" alt="SPACEMAN3D">
+      <span class="header-wordmark">SPACEMAN<span>3D</span></span>
+    </a>
+    <a class="header-back" href="index.html">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to Base
+    </a>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-glow"></div>
+    <div class="hero-badge">
+      <div class="hero-badge-dot"></div>
+      <span class="hero-badge-text">Custom Print Request</span>
+    </div>
+    <h1>LET'S BUILD<br><span>SOMETHING WILD.</span></h1>
+    <p>Got a vision? We'll print it. Tell us what you need and we'll handle the rest — from material selection to your doorstep.</p>
+  </section>
+
+  <!-- Form -->
+  <section class="form-section">
+    <form id="customForm" onsubmit="handleSubmit(event)">
+      <div class="form-grid">
+
+        <!-- Section: Contact -->
+        <div class="section-divider full">
+          <div class="section-divider-line"></div>
+          <span class="section-divider-label">01 — Your Details</span>
+          <div class="section-divider-line"></div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Full Name <span class="required">*</span></label>
+          <input class="input" type="text" placeholder="Houston, we have a name" required>
+        </div>
+        <div class="field">
+          <label class="field-label">Email <span class="required">*</span></label>
+          <input class="input" type="email" placeholder="you@missioncontrol.com" required>
+        </div>
+        <div class="field">
+          <label class="field-label">Phone</label>
+          <input class="input" type="tel" placeholder="+1 (555) 000-0000">
+        </div>
+        <div class="field">
+          <label class="field-label">Deadline</label>
+          <input class="input" type="date" id="deadlineInput">
+        </div>
+
+        <!-- Section: Print Specs -->
+        <div class="section-divider full">
+          <div class="section-divider-line"></div>
+          <span class="section-divider-label">02 — Print Specs</span>
+          <div class="section-divider-line"></div>
+        </div>
+
+        <!-- Material -->
+        <div class="field full">
+          <label class="field-label">Material <span class="required">*</span></label>
+          <span class="field-hint">Choose the filament that fits your mission</span>
+          <div class="chip-group" id="materialChips">
+            <button type="button" class="chip active" data-val="PLA" onclick="selectChip(this,'materialChips')">
+              <span class="chip-dot" style="background:#4CAF50"></span> PLA — Easy &amp; Versatile
+            </button>
+            <button type="button" class="chip" data-val="Resin" onclick="selectChip(this,'materialChips')">
+              <span class="chip-dot" style="background:#2979FF"></span> Resin — Ultra Detail
+            </button>
+            <button type="button" class="chip" data-val="PETG" onclick="selectChip(this,'materialChips')">
+              <span class="chip-dot" style="background:#FF9800"></span> PETG — Strong &amp; Flexible
+            </button>
+            <button type="button" class="chip" data-val="ABS" onclick="selectChip(this,'materialChips')">
+              <span class="chip-dot" style="background:#9C27B0"></span> ABS — Heat Resistant
+            </button>
+            <button type="button" class="chip" data-val="TPU" onclick="selectChip(this,'materialChips')">
+              <span class="chip-dot" style="background:#F44336"></span> TPU — Flexible
+            </button>
+          </div>
+          <input type="hidden" id="materialVal" value="PLA">
+        </div>
+
+        <!-- Color -->
+        <div class="field">
+          <label class="field-label">Color</label>
+          <span class="field-hint">Pick a base color — or leave it to us</span>
+          <div class="swatch-group" id="colorSwatches">
+            <div class="swatch active" style="background:#FFFFFF" data-color="White" title="White" onclick="selectSwatch(this)"></div>
+            <div class="swatch" style="background:#111111" data-color="Black" title="Black" onclick="selectSwatch(this)"></div>
+            <div class="swatch" style="background:#2979FF" data-color="Blue" title="Electric Blue" onclick="selectSwatch(this)"></div>
+            <div class="swatch" style="background:#F44336" data-color="Red" title="Red" onclick="selectSwatch(this)"></div>
+            <div class="swatch" style="background:#4CAF50" data-color="Green" title="Green" onclick="selectSwatch(this)"></div>
+            <div class="swatch" style="background:#FF9800" data-color="Orange" title="Orange" onclick="selectSwatch(this)"></div>
+            <div class="swatch" style="background:#9C27B0" data-color="Purple" title="Purple" onclick="selectSwatch(this)"></div>
+            <div class="swatch" style="background:#607D8B" data-color="Grey" title="Grey" onclick="selectSwatch(this)"></div>
+            <div class="swatch" style="background:linear-gradient(135deg,#FFD700,#FF6B00)" data-color="Gold" title="Gold" onclick="selectSwatch(this)"></div>
+            <input class="input" type="text" id="colorNote" placeholder="Describe custom color…" style="flex:1;min-width:140px;padding:8px 12px;font-size:13px;">
+          </div>
+          <input type="hidden" id="colorVal" value="White">
+        </div>
+
+        <!-- Quantity -->
+        <div class="field">
+          <label class="field-label">Quantity <span class="required">*</span></label>
+          <span class="field-hint">How many units do you need?</span>
+          <div style="display:flex;align-items:center;gap:16px;margin-top:4px;">
+            <div class="qty-stepper">
+              <button type="button" class="qty-btn" onclick="changeQty(-1)">−</button>
+              <div class="qty-val" id="qtyVal">1</div>
+              <button type="button" class="qty-btn" onclick="changeQty(1)">+</button>
+            </div>
+            <span style="font-size:12px;color:var(--fg4)">Bulk pricing available for 10+</span>
+          </div>
+          <input type="hidden" id="qtyHidden" value="1">
+        </div>
+
+        <!-- Budget -->
+        <div class="field full">
+          <label class="field-label">Budget Range</label>
+          <div class="budget-value" id="budgetDisplay">$250</div>
+          <div class="budget-track">
+            <input class="budget-slider" type="range" min="25" max="2500" step="25" value="250"
+              id="budgetSlider" oninput="updateBudget(this.value)">
+          </div>
+          <div class="budget-labels">
+            <span>$25</span>
+            <span>$500</span>
+            <span>$1000</span>
+            <span>$1500</span>
+            <span>$2500+</span>
+          </div>
+        </div>
+
+        <!-- Section: Files -->
+        <div class="section-divider full">
+          <div class="section-divider-line"></div>
+          <span class="section-divider-label">03 — Reference Files (Optional)</span>
+          <div class="section-divider-line"></div>
+        </div>
+
+        <div class="field full">
+          <label class="field-label">Upload Files</label>
+          <span class="field-hint">STL, OBJ, images, sketches — anything helps</span>
+          <div class="upload-zone" id="uploadZone">
+            <input type="file" multiple accept=".stl,.obj,.png,.jpg,.jpeg,.pdf,.zip" onchange="handleFiles(this.files)">
+            <div class="upload-icon">
+              <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </div>
+            <div class="upload-title">Drop files here or <strong style="color:var(--blue-400)">browse</strong></div>
+            <div class="upload-sub">STL · OBJ · PNG · JPG · PDF — max 50MB</div>
+            <div class="upload-file-list" id="fileList"></div>
+          </div>
+        </div>
+
+        <!-- Section: Notes -->
+        <div class="section-divider full">
+          <div class="section-divider-line"></div>
+          <span class="section-divider-label">04 — Mission Brief</span>
+          <div class="section-divider-line"></div>
+        </div>
+
+        <div class="field full">
+          <label class="field-label">Project Description</label>
+          <textarea class="textarea" rows="4" placeholder="Tell us everything — what it is, how it'll be used, any special requirements. The more detail, the better we can serve your mission."></textarea>
+        </div>
+
+        <!-- Submit -->
+        <div class="submit-row full">
+          <p class="submit-note">
+            <strong>No commitment yet.</strong> We'll review your request and send a quote within 24 hours. Houston, we have a solution.
+          </p>
+          <button type="submit" class="btn-launch">
+            <svg viewBox="0 0 24 24"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 00-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 012-3.95A12.88 12.88 0 0122 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 01-4 2z"/></svg>
+            Launch My Request
+          </button>
+        </div>
+
+      </div>
+    </form>
+  </section>
+
+</div>
+
+<script>
+  // ── STAR BACKGROUND ──────────────────────────────────────
+  const sc = document.getElementById('starsCanvas');
+  const sx = sc.getContext('2d');
+  let stars = [];
+
+  function resizeStars() {
+    sc.width = window.innerWidth;
+    sc.height = window.innerHeight;
+    stars = [];
+    const count = Math.min(300, Math.floor(sc.width * sc.height / 4000));
+    for (let i = 0; i < count; i++) {
+      const roll = Math.random();
+      const type = roll > 0.92 ? 1 : roll > 0.78 ? 2 : 0;
+      stars.push({
+        x: Math.random() * sc.width,
+        y: Math.random() * sc.height,
+        r: type === 1 ? Math.random() * 1.1 + 0.6 : Math.random() * 0.9 + 0.1,
+        baseAlpha: type === 1 ? 0.85 : Math.random() * 0.55 + 0.15,
+        phase: Math.random() * Math.PI * 2,
+        phase2: Math.random() * Math.PI * 2,
+        speed: type === 2 ? Math.random() * 3 + 2 : Math.random() * 0.6 + 0.2,
+        speed2: Math.random() * 1.4 + 0.4,
+        type,
+        color: roll > 0.85 ? '#90BAFF' : roll > 0.7 ? '#A8C8E0' : '#FFFFFF',
+      });
+    }
+  }
+
+  function drawStars(time) {
+    sx.clearRect(0, 0, sc.width, sc.height);
+    const t = time * 0.001;
+    stars.forEach(s => {
+      let twinkle, r;
+      if (s.type === 1) {
+        const raw = Math.sin(t * s.speed + s.phase);
+        twinkle = Math.pow(Math.max(0, raw), 4);
+        r = s.r * (0.6 + 0.7 * twinkle);
+        if (twinkle > 0.5) {
+          const glow = sx.createRadialGradient(s.x, s.y, 0, s.x, s.y, r * 5);
+          glow.addColorStop(0, `rgba(41,121,255,${0.3 * twinkle})`);
+          glow.addColorStop(1, 'rgba(41,121,255,0)');
+          sx.fillStyle = glow;
+          sx.beginPath(); sx.arc(s.x, s.y, r * 5, 0, Math.PI * 2); sx.fill();
+        }
+      } else if (s.type === 2) {
+        const a = 0.5 + 0.5 * Math.sin(t * s.speed + s.phase);
+        const b = 0.5 + 0.5 * Math.sin(t * s.speed2 * 1.7 + s.phase2);
+        twinkle = a * b; r = s.r;
+      } else {
+        const a = 0.5 + 0.5 * Math.sin(t * s.speed + s.phase);
+        const b = 0.5 + 0.5 * Math.sin(t * s.speed2 + s.phase2);
+        twinkle = 0.3 + 0.7 * (a * 0.6 + b * 0.4); r = s.r;
+      }
+      const alpha = s.baseAlpha * twinkle;
+      if (alpha < 0.01) return;
+      sx.globalAlpha = alpha;
+      sx.fillStyle = s.color;
+      sx.beginPath(); sx.arc(s.x, s.y, r, 0, Math.PI * 2); sx.fill();
+    });
+    sx.globalAlpha = 1;
+  }
+
+  window.addEventListener('resize', resizeStars);
+  resizeStars();
+
+  function loop(t) { drawStars(t); requestAnimationFrame(loop); }
+  requestAnimationFrame(loop);
+
+  // ── FORM LOGIC ────────────────────────────────────────────
+  let qty = 1;
+
+  function changeQty(delta) {
+    qty = Math.max(1, Math.min(9999, qty + delta));
+    document.getElementById('qtyVal').textContent = qty;
+    document.getElementById('qtyHidden').value = qty;
+  }
+
+  function updateBudget(val) {
+    const n = parseInt(val);
+    document.getElementById('budgetDisplay').textContent =
+      n >= 2500 ? '$2,500+' : '$' + n.toLocaleString();
+    // Update slider fill track
+    const pct = ((n - 25) / (2500 - 25)) * 100;
+    document.getElementById('budgetSlider').style.background =
+      `linear-gradient(to right, #2979FF ${pct}%, #262850 ${pct}%)`;
+  }
+  updateBudget(250);
+
+  function selectChip(el, groupId) {
+    document.querySelectorAll(`#${groupId} .chip`).forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('materialVal').value = el.dataset.val;
+  }
+
+  function selectSwatch(el) {
+    document.querySelectorAll('#colorSwatches .swatch').forEach(s => s.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('colorVal').value = el.dataset.color;
+  }
+
+  function handleFiles(files) {
+    const list = document.getElementById('fileList');
+    list.innerHTML = '';
+    [...files].forEach(f => {
+      const item = document.createElement('div');
+      item.className = 'upload-file-item';
+      item.innerHTML = `<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>${f.name} <span style="margin-left:auto;font-size:10px;color:var(--fg4)">${(f.size/1024).toFixed(0)}KB</span>`;
+      list.appendChild(item);
+    });
+  }
+
+  // ── DRAG & DROP ───────────────────────────────────────────
+  const zone = document.getElementById('uploadZone');
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    handleFiles(e.dataTransfer.files);
+  });
+
+  // ── SUBMIT ────────────────────────────────────────────────
+  function handleSubmit(e) {
+    e.preventDefault();
+    document.getElementById('successOverlay').classList.add('show');
+    window.scrollTo({ top: 0 });
+  }
+
+  // ── DATE MIN ─────────────────────────────────────────────
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('deadlineInput').min = today;
+</script>
+</body>
+</html>

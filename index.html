@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SPACEMAN3D — Out-of-This-World 3D Printing</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* ── DESIGN SYSTEM TOKENS ── */
+    :root {
+      --color-bg-deep:      #08080F;
+      --color-bg-surface:   #0F1020;
+      --color-bg-raised:    #161830;
+      --color-blue-500:     #2979FF;
+      --color-blue-400:     #5B9BFF;
+      --color-blue-300:     #90BAFF;
+      --color-blue-600:     #1565C0;
+      --color-blue-glow:    rgba(41,121,255,0.35);
+      --color-helmet-light: #A8C8E0;
+      --color-white:        #FFFFFF;
+      --color-fg1:          #E8EDF5;
+      --color-fg2:          #B0BBCC;
+      --color-fg3:          #8892A4;
+      --color-border:       #1E2040;
+      --color-border-strong:#262850;
+      --glow-sm:            0 0 12px rgba(41,121,255,0.25);
+      --glow-md:            0 0 24px rgba(41,121,255,0.35);
+      --glow-lg:            0 0 48px rgba(41,121,255,0.45);
+      --glow-cta:           0 0 16px rgba(41,121,255,0.55), 0 4px 24px rgba(0,0,0,0.5);
+      --font-display:       'Orbitron', sans-serif;
+      --font-body:          'Inter', sans-serif;
+      --font-mono:          'Space Mono', monospace;
+      --radius-sm:          6px;
+      --radius-md:          12px;
+      --radius-full:        9999px;
+      --transition-fast:    150ms ease-out;
+      --transition-base:    200ms ease-out;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: auto; }
+    body {
+      height: 700vh;
+      background: var(--color-bg-deep);
+      overscroll-behavior: none;
+      font-family: var(--font-body);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── FIXED SCENE ── */
+    .scene {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      background: var(--color-bg-deep);
+    }
+
+    /* ── STAR CANVAS ── */
+    #starsCanvas {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* ── EARTH PHOTO ── */
+    .earth-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      overflow: hidden;
+    }
+    .earth-layer img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 22%;
+      display: block;
+      transform-origin: center center;
+      will-change: transform;
+    }
+    /* Vignette — primes the eye for visor reveal */
+    .earth-layer::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(
+        ellipse 70% 66% at 50% 46%,
+        transparent 52%,
+        rgba(8,8,15,0.6) 78%,
+        rgba(8,8,15,0.95) 100%
+      );
+      pointer-events: none;
+    }
+
+    /* ── ASTRONAUT LAYER ── */
+    .astro-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      opacity: 0;
+    }
+    .astro-layer img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      display: block;
+      transform-origin: 50% 20%;
+      will-change: transform, filter;
+    }
+
+    /* ── MOON ATMOSPHERE ── */
+    .moon-atmo {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 32%;
+      z-index: 6;
+      background: linear-gradient(to top, rgba(8,8,15,0.8) 0%, transparent 100%);
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      z-index: 20;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      background: rgba(8,8,15,0.0);
+      backdrop-filter: blur(0px);
+      border-bottom: 1px solid rgba(30,32,64,0);
+      opacity: 0;
+      transition: background var(--transition-base), border-color var(--transition-base), backdrop-filter var(--transition-base);
+    }
+    .header.visible {
+      background: rgba(8,8,15,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom-color: var(--color-border);
+    }
+
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+    .header-logo img {
+      width: 36px;
+      height: 36px;
+      filter: drop-shadow(0 0 10px rgba(41,121,255,0.5));
+    }
+    .header-wordmark {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--color-white);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .header-wordmark span { color: var(--color-blue-500); }
+
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .header-nav-link {
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--color-fg3);
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: color var(--transition-fast), background var(--transition-fast);
+      text-decoration: none;
+    }
+    .header-nav-link:hover {
+      color: var(--color-blue-400);
+      background: rgba(41,121,255,0.08);
+    }
+
+    .header-cta {
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 8px 20px;
+      border-radius: var(--radius-full);
+      background: rgba(41,121,255,0.15);
+      border: 1.5px solid rgba(41,121,255,0.4);
+      color: var(--color-blue-400);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    .header-cta:hover {
+      background: rgba(41,121,255,0.25);
+      border-color: var(--color-blue-500);
+      box-shadow: var(--glow-sm);
+      color: var(--color-white);
+    }
+
+    /* ── BRAND LOGO (over Earth) ── */
+    .brand-logo {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: clamp(140px, 18vw, 260px);
+      height: auto;
+      z-index: 11;
+      pointer-events: none;
+      filter: drop-shadow(0 0 24px rgba(41,121,255,0.45)) drop-shadow(0 8px 32px rgba(0,0,0,0.6));
+      animation: brandFloat 6s ease-in-out infinite;
+      will-change: transform, opacity;
+    }
+    @keyframes brandFloat {
+      0%, 100% { transform: translate(-50%, calc(-50% - 4px)); }
+      50%      { transform: translate(-50%, calc(-50% + 4px)); }
+    }
+
+    /* ── HERO BADGE ── */
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(41,121,255,0.1);
+      border: 1px solid rgba(41,121,255,0.3);
+      border-radius: var(--radius-full);
+      padding: 5px 14px;
+      margin-bottom: 20px;
+    }
+    .hero-badge-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--color-blue-500);
+      box-shadow: 0 0 8px rgba(41,121,255,0.8);
+    }
+    .hero-badge-text {
+      font-family: var(--font-body);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--color-blue-400);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* ── HERO TAGLINE ── */
+    .hero-tagline {
+      position: absolute;
+      bottom: 12%;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      z-index: 10;
+      pointer-events: none;
+      white-space: nowrap;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .hero-h1 {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: clamp(2.2rem, 5.5vw, 4.8rem);
+      color: var(--color-white);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      line-height: 1.05;
+      text-shadow: 0 0 60px rgba(41,121,255,0.4);
+    }
+    .hero-h1 span { color: var(--color-blue-500); }
+    .hero-sub {
+      font-family: var(--font-body);
+      font-size: clamp(0.75rem, 1.3vw, 0.95rem);
+      font-weight: 500;
+      color: var(--color-fg3);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-top: 10px;
+    }
+
+    /* ── SCROLL HINT ── */
+    .scroll-hint {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      pointer-events: none;
+    }
+    .scroll-hint-text {
+      font-family: var(--font-body);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.3em;
+      color: var(--color-fg3);
+      text-transform: uppercase;
+    }
+    .scroll-mouse {
+      width: 22px; height: 34px;
+      border: 1.5px solid rgba(41,121,255,0.35);
+      border-radius: 11px;
+      position: relative;
+    }
+    .scroll-mouse::after {
+      content: '';
+      position: absolute;
+      top: 5px; left: 50%;
+      transform: translateX(-50%);
+      width: 3px; height: 7px;
+      background: rgba(41,121,255,0.6);
+      border-radius: 2px;
+      animation: scrollDot 1.6s ease-in-out infinite;
+    }
+    @keyframes scrollDot {
+      0%   { top: 5px; opacity: 1; }
+      75%  { top: 17px; opacity: 0; }
+      100% { top: 5px; opacity: 0; }
+    }
+
+    /* ── SIDE NAVIGATION (final state) ── */
+    .nav-wrapper {
+      position: absolute;
+      inset: 0;
+      z-index: 15;
+      display: flex;
+      align-items: center;
+      pointer-events: none;
+    }
+    .nav-side {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .nav-side.left  { margin-left: 40px; }
+    .nav-side.right { margin-left: auto; margin-right: 40px; align-items: flex-end; }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      opacity: 0;
+      pointer-events: none;
+      cursor: pointer;
+      padding: 10px 18px;
+      width: 220px;
+      border-radius: var(--radius-md);
+      background: rgba(15,16,32,0.75);
+      border: 1px solid var(--color-border);
+      backdrop-filter: blur(12px);
+      transition: border-color var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
+    }
+    .nav-side.right .nav-item { flex-direction: row-reverse; }
+
+    .nav-item:hover {
+      border-color: rgba(41,121,255,0.5);
+      background: rgba(41,121,255,0.08);
+      box-shadow: var(--glow-sm);
+    }
+
+    .nav-icon {
+      width: 28px; height: 28px;
+      border-radius: var(--radius-sm);
+      background: rgba(41,121,255,0.12);
+      border: 1px solid rgba(41,121,255,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background var(--transition-fast), border-color var(--transition-fast);
+    }
+    .nav-item:hover .nav-icon {
+      background: rgba(41,121,255,0.22);
+      border-color: rgba(41,121,255,0.5);
+    }
+    .nav-icon svg {
+      width: 14px; height: 14px;
+      stroke: var(--color-blue-400);
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .nav-text { display: flex; flex-direction: column; gap: 2px; }
+    .nav-label {
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--color-fg1);
+      transition: color var(--transition-fast);
+    }
+    .nav-item:hover .nav-label { color: var(--color-blue-400); }
+    .nav-sublabel {
+      font-family: var(--font-body);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      color: var(--color-fg3);
+      text-transform: uppercase;
+    }
+
+    /* ── EXPLORE CTA (center, final) ── */
+    .explore-cta {
+      position: absolute;
+      bottom: 8%;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 16;
+      text-align: center;
+      pointer-events: none;
+      opacity: 0;
+      white-space: nowrap;
+    }
+    .explore-cta p {
+      font-family: var(--font-body);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.25em;
+      color: var(--color-fg3);
+      text-transform: uppercase;
+    }
+    .explore-divider {
+      width: 48px; height: 1px;
+      background: linear-gradient(to right, transparent, rgba(41,121,255,0.45), transparent);
+      margin: 8px auto;
+    }
+
+    /* ── SOCIAL BUTTONS ── */
+    .social-bar {
+      position: absolute;
+      bottom: 2.2rem;
+      right: 2.5rem;
+      z-index: 16;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .social-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: var(--radius-md);
+      background: rgba(15,16,32,0.8);
+      border: 1px solid var(--color-border);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+    }
+    .social-btn:hover {
+      border-color: rgba(41,121,255,0.5);
+      background: rgba(41,121,255,0.1);
+      box-shadow: var(--glow-sm);
+      transform: translateY(-2px);
+    }
+    .social-btn svg {
+      width: 18px;
+      height: 18px;
+      fill: var(--color-fg3);
+      transition: fill var(--transition-fast);
+    }
+    .social-btn:hover svg { fill: var(--color-blue-400); }
+
+    /* ── PARTICLE CANVAS ── */
+    #particleCanvas {
+      position: absolute;
+      inset: 0;
+      z-index: 14;
+      pointer-events: none;
+    }
+
+    /* ── MOBILE OPTIMIZATIONS ── */
+    @media (max-width: 900px) {
+      .header { padding: 0 16px; }
+      .header-nav { display: none; }
+      .header-wordmark { font-size: 16px; }
+      .header-logo img { width: 32px; height: 32px; }
+      .nav-side.left { margin-left: 16px; }
+      .nav-side.right { margin-left: auto; margin-right: 16px; }
+      .nav-item { width: 180px; padding: 8px 14px; }
+      .nav-icon { width: 24px; height: 24px; }
+      .nav-label { font-size: 11px; }
+      .nav-sublabel { font-size: 9px; }
+      .social-bar { right: 1.2rem; bottom: 1.5rem; gap: 8px; }
+      .social-btn { width: 38px; height: 38px; }
+      .social-btn svg { width: 16px; height: 16px; }
+    }
+
+    @media (max-width: 600px) {
+      .header-wordmark { font-size: 14px; letter-spacing: 0.06em; }
+      .header-logo { gap: 8px; }
+      .hero-tagline { bottom: 22%; padding: 0 1.5rem; white-space: normal; }
+      .hero-h1 { font-size: clamp(1.6rem, 8vw, 2.6rem) !important; letter-spacing: 0.08em; }
+      .hero-sub { font-size: 0.7rem !important; letter-spacing: 0.2em; }
+
+      /* Side nav becomes single column at bottom on phones */
+      .nav-wrapper { align-items: flex-end; padding-bottom: 5rem; }
+      .nav-side { gap: 8px; flex-direction: row; flex-wrap: wrap; justify-content: center; }
+      .nav-side.left, .nav-side.right { margin: 0 auto; width: 100%; padding: 0 12px; align-items: center; }
+      .nav-side.right .nav-item { flex-direction: row; }
+      .nav-item { width: calc(50% - 4px); padding: 8px 10px; min-width: 0; }
+      .nav-icon { width: 22px; height: 22px; }
+      .nav-label { font-size: 10px; letter-spacing: 0.06em; }
+      .nav-sublabel { font-size: 8px; }
+      .nav-text { min-width: 0; overflow: hidden; }
+      .nav-text > * { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+      /* Move social bar to top-right on phones so it doesn't overlap nav */
+      .social-bar { flex-direction: row; bottom: auto; right: 1rem; top: 0.8rem; z-index: 21; }
+      .social-btn { width: 34px; height: 34px; }
+
+      /* Hide scroll hint when nav appears to avoid clutter */
+      .scroll-hint { bottom: 1.2rem; }
+      .scroll-hint span { font-size: 8px; letter-spacing: 0.25em; }
+
+      .brand-logo { width: clamp(110px, 38vw, 200px); }
+      .explore-cta { display: none; }
+    }
+
+    /* Landscape on phones — keep things compact */
+    @media (max-height: 500px) and (max-width: 900px) {
+      .hero-tagline { bottom: 8%; }
+      .nav-wrapper { padding-bottom: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="scene" id="scene">
+
+  <!-- Stars -->
+  <canvas id="starsCanvas"></canvas>
+
+  <!-- Astronaut on Moon (below Earth) -->
+  <div class="astro-layer" id="astroLayer">
+    <img id="astroImg" src="uploads/spaceman end of scroll.png" alt="Astronaut on the Moon">
+  </div>
+
+  <!-- Real Earth photo (top layer — fades out cinematically) -->
+  <div class="earth-layer" id="earthLayer">
+    <img id="earthImg" src="uploads/spaceman start of scroll.png" alt="Earth from the Moon">
+  </div>
+
+  <!-- Moon atmospheric glow -->
+  <div class="moon-atmo" id="moonAtmo"></div>
+
+  <!-- Particle canvas -->
+  <canvas id="particleCanvas"></canvas>
+
+  <!-- Header (appears at end of scroll) -->
+  <header class="header" id="siteHeader">
+    <div class="header-logo">
+      <img src="assets/spaceman-helmet.png" alt="SPACEMAN3D">
+      <span class="header-wordmark">SPACEMAN<span>3D</span></span>
+    </div>
+    <nav class="header-nav">
+      <a class="header-nav-link" href="https://makerworld.com/en/@spaceman3d" target="_blank" rel="noopener">Shop</a>
+      <a class="header-nav-link" href="model-creator.html">Model Creator</a>
+      <a class="header-nav-link" href="custom.html">Custom</a>
+      <a class="header-nav-link" href="about.html">About</a>
+      <a class="header-nav-link" href="flight-school.html">Flight School</a>
+    </nav>
+
+  </header>
+
+  <!-- Brand logo over Earth -->
+  <img class="brand-logo" id="brandLogo" src="assets/spaceman-logo.png" alt="Spaceman3D" />
+
+  <!-- Hero tagline (phase 1) -->
+  <div class="hero-tagline" id="heroTagline">
+    <div class="hero-badge">
+      <div class="hero-badge-dot"></div>
+      <span class="hero-badge-text">Custom 3D Printing</span>
+    </div>
+    <div class="hero-h1">YOUR IMAGINATION,<br><span>IN 3D.</span></div>
+    <div class="hero-sub">From idea to object — we print it, you love it</div>
+  </div>
+
+  <!-- Side navigation (appears at end) -->
+  <nav class="nav-wrapper" id="navWrapper">
+    <div class="nav-side left">
+
+      <a class="nav-item" id="nav-shop" href="https://makerworld.com/en/@spaceman3d" target="_blank" rel="noopener">
+        <div class="nav-icon">
+          <!-- shopping bag icon -->
+          <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        </div>
+        <div class="nav-text">
+          <span class="nav-label">Shop</span>
+          <span class="nav-sublabel">Browse models</span>
+        </div>
+      </a>
+
+      <a class="nav-item" id="nav-creator" href="model-creator.html">
+        <div class="nav-icon">
+          <!-- cube/3d icon -->
+          <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+        </div>
+        <div class="nav-text">
+          <span class="nav-label">Model Creator</span>
+          <span class="nav-sublabel">Design your print</span>
+        </div>
+      </a>
+
+      <a class="nav-item" id="nav-flight" href="flight-school.html">
+        <div class="nav-icon">
+          <!-- graduation cap icon -->
+          <svg viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+        </div>
+        <div class="nav-text">
+          <span class="nav-label">Flight School</span>
+          <span class="nav-sublabel">Learn 3D printing</span>
+        </div>
+      </a>
+
+    </div>
+    <div class="nav-side right">
+
+      <a class="nav-item" id="nav-custom" href="custom.html">
+        <div class="nav-icon">
+          <!-- pen tool / custom icon -->
+          <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </div>
+        <div class="nav-text">
+          <span class="nav-label">Custom</span>
+          <span class="nav-sublabel">Your vision, printed</span>
+        </div>
+      </a>
+
+      <a class="nav-item" id="nav-about" href="about.html">
+        <div class="nav-icon">
+          <!-- rocket icon -->
+          <svg viewBox="0 0 24 24"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 00-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 012-3.95A12.88 12.88 0 0122 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 01-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>
+        </div>
+        <div class="nav-text">
+          <span class="nav-label">About</span>
+          <span class="nav-sublabel">Our story</span>
+        </div>
+      </a>
+
+    </div>
+  </nav>
+
+  <!-- Explore CTA -->
+  <div class="explore-cta" id="exploreCta">
+    <div class="explore-divider"></div>
+    <p>Select a destination</p>
+    <div class="explore-divider"></div>
+  </div>
+
+  <!-- Social buttons -->
+  <div class="social-bar" id="socialBar">
+    <a class="social-btn" href="https://www.tiktok.com/@spaceman_3d" target="_blank" rel="noopener" title="TikTok" id="social-tiktok">
+      <!-- TikTok logo -->
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z"/>
+      </svg>
+    </a>
+    <a class="social-btn" href="https://www.instagram.com/spaceman.3d/" target="_blank" rel="noopener" title="Instagram" id="social-instagram">
+      <!-- Instagram logo -->
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+      </svg>
+    </a>
+  </div>
+
+  <!-- Scroll hint -->
+  <div class="scroll-hint" id="scrollHint">
+    <span class="scroll-hint-text">Scroll to explore</span>
+    <div class="scroll-mouse"></div>
+  </div>
+
+</div>
+
+<script>
+  // ── HELPERS ──────────────────────────────────────────────
+  function clamp(x, a, b) { return Math.max(a, Math.min(b, x)); }
+  function c01(x, from, to) { return clamp((x - from) / (to - from), 0, 1); }
+  function lerp(a, b, t)    { return a + (b - a) * t; }
+  function easeOut3(t) { return 1 - Math.pow(1 - t, 3); }
+  function easeOut2(t) { return 1 - Math.pow(1 - t, 2); }
+  function easeInOut(t) { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
+
+  // ── STARS ─────────────────────────────────────────────────
+  // Design system: deep space bg, blue-tinted stars, twinkle
+  const starsCanvas = document.getElementById('starsCanvas');
+  const sCtx = starsCanvas.getContext('2d');
+  let stars = [], starsOpacity = 0;
+
+  function resizeStars() {
+    starsCanvas.width = window.innerWidth;
+    starsCanvas.height = window.innerHeight;
+    stars = [];
+    const count = Math.min(450, Math.floor(window.innerWidth * window.innerHeight / 2400));
+    for (let i = 0; i < count; i++) {
+      const roll = Math.random();
+      // type: 0=normal, 1=flasher (dramatic pulse), 2=shimmer (fast flutter)
+      const type = roll > 0.92 ? 1 : roll > 0.78 ? 2 : 0;
+      stars.push({
+        x: Math.random() * starsCanvas.width,
+        y: Math.random() * starsCanvas.height,
+        r: type === 1 ? Math.random() * 1.2 + 0.8 : Math.random() * 1.0 + 0.15,
+        baseAlpha: type === 1 ? 0.9 : Math.random() * 0.65 + 0.2,
+        phase: Math.random() * Math.PI * 2,
+        phase2: Math.random() * Math.PI * 2,  // second harmonic for irregularity
+        speed: type === 2 ? Math.random() * 3 + 2 : Math.random() * 0.6 + 0.25,
+        speed2: Math.random() * 1.5 + 0.5,
+        type,
+        color: roll > 0.85 ? '#90BAFF' : roll > 0.7 ? '#A8C8E0' : '#FFFFFF',
+        // flashers get a blue glow colour
+        glowColor: 'rgba(41,121,255,0.6)',
+      });
+    }
+  }
+
+  function drawStars(time) {
+    sCtx.clearRect(0, 0, starsCanvas.width, starsCanvas.height);
+    if (starsOpacity <= 0.01) return;
+    const t = time * 0.001;
+    stars.forEach(s => {
+      let twinkle, r;
+
+      if (s.type === 1) {
+        // Flasher: sharp bright spike using power curve — most of the time dim, occasional flash
+        const raw = Math.sin(t * s.speed + s.phase);
+        twinkle = Math.pow(Math.max(0, raw), 4);
+        r = s.r * (0.6 + 0.7 * twinkle);
+      } else if (s.type === 2) {
+        // Shimmer: two overlapping fast frequencies create irregular flutter
+        const a = 0.5 + 0.5 * Math.sin(t * s.speed + s.phase);
+        const b = 0.5 + 0.5 * Math.sin(t * s.speed2 * 1.7 + s.phase2);
+        twinkle = a * b;
+        r = s.r;
+      } else {
+        // Normal: gentle two-harmonic sine
+        const a = 0.5 + 0.5 * Math.sin(t * s.speed + s.phase);
+        const b = 0.5 + 0.5 * Math.sin(t * s.speed2 + s.phase2);
+        twinkle = 0.3 + 0.7 * (a * 0.6 + b * 0.4);
+        r = s.r;
+      }
+
+      const alpha = s.baseAlpha * twinkle * starsOpacity;
+      if (alpha < 0.01) return;
+
+      // Bright flashers get a soft glow halo
+      if (s.type === 1 && twinkle > 0.5) {
+        const glow = sCtx.createRadialGradient(s.x, s.y, 0, s.x, s.y, r * 5);
+        glow.addColorStop(0, `rgba(41,121,255,${0.35 * twinkle * starsOpacity})`);
+        glow.addColorStop(1, 'rgba(41,121,255,0)');
+        sCtx.fillStyle = glow;
+        sCtx.beginPath();
+        sCtx.arc(s.x, s.y, r * 5, 0, Math.PI * 2);
+        sCtx.fill();
+
+        // Cross flare on bright peak
+        if (twinkle > 0.75) {
+          const len = r * 6 * twinkle;
+          sCtx.globalAlpha = alpha * 0.5;
+          sCtx.strokeStyle = s.color;
+          sCtx.lineWidth = 0.5;
+          sCtx.beginPath();
+          sCtx.moveTo(s.x - len, s.y); sCtx.lineTo(s.x + len, s.y);
+          sCtx.moveTo(s.x, s.y - len); sCtx.lineTo(s.x, s.y + len);
+          sCtx.stroke();
+        }
+      }
+
+      sCtx.globalAlpha = alpha;
+      sCtx.fillStyle = s.color;
+      sCtx.beginPath();
+      sCtx.arc(s.x, s.y, r, 0, Math.PI * 2);
+      sCtx.fill();
+    });
+    sCtx.globalAlpha = 1;
+  }
+
+  window.addEventListener('resize', resizeStars);
+  resizeStars();
+
+  // ── PARTICLES ─────────────────────────────────────────────
+  const pCanvas = document.getElementById('particleCanvas');
+  const pCtx = pCanvas.getContext('2d');
+  let particles = [];
+
+  function resizeParticles() {
+    pCanvas.width = window.innerWidth;
+    pCanvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resizeParticles);
+  resizeParticles();
+
+  // Design system: blue-500 and white burst
+  function spawnBurst(x, y, count) {
+    for (let i = 0; i < count; i++) {
+      const angle = (Math.PI * 2 * i / count) + Math.random() * 0.5;
+      const speed = Math.random() * 4 + 1.5;
+      const roll = Math.random();
+      particles.push({
+        x, y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        life: 1,
+        decay: Math.random() * 0.022 + 0.012,
+        r: Math.random() * 2.2 + 0.6,
+        color: roll > 0.6 ? '#2979FF' : roll > 0.3 ? '#5B9BFF' : '#FFFFFF'
+      });
+    }
+  }
+
+  function updateParticles() {
+    pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+    particles = particles.filter(p => p.life > 0);
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      p.vx *= 0.96; p.vy *= 0.96;
+      p.life -= p.decay;
+      if (p.life <= 0) return;
+      pCtx.globalAlpha = Math.max(0, p.life);
+      pCtx.fillStyle = p.color;
+      pCtx.beginPath();
+      pCtx.arc(p.x, p.y, p.r * p.life, 0, Math.PI * 2);
+      pCtx.fill();
+    });
+    pCtx.globalAlpha = 1;
+  }
+
+  // ── ELEMENTS ─────────────────────────────────────────────
+  const earthLayer  = document.getElementById('earthLayer');
+  const earthImg    = document.getElementById('earthImg');
+  const astroLayer  = document.getElementById('astroLayer');
+  const astroImg    = document.getElementById('astroImg');
+  const moonAtmo    = document.getElementById('moonAtmo');
+  const siteHeader  = document.getElementById('siteHeader');
+  const heroTagline = document.getElementById('heroTagline');
+  const scrollHint  = document.getElementById('scrollHint');
+  const brandLogo   = document.getElementById('brandLogo');
+  const exploreCta  = document.getElementById('exploreCta');
+  const navLeftItems  = [...document.querySelectorAll('.nav-side.left .nav-item')];
+  const navRightItems = [...document.querySelectorAll('.nav-side.right .nav-item')];
+  const allNavItems   = [...document.querySelectorAll('.nav-item')];
+
+  let navBurstFired = false;
+
+  // ── UPDATE ────────────────────────────────────────────────
+  function update(p, time) {
+
+    // Stars: appear with the brand deep-space vibe
+    starsOpacity = easeOut2(c01(p, 0.10, 0.52));
+
+    // Earth: breathe zoom, then fast cinematic fade
+    earthImg.style.transform = `scale(${1.0 + 0.07 * easeInOut(c01(p, 0, 0.18))})`;
+    earthLayer.style.opacity = 1 - easeOut3(c01(p, 0.10, 0.30));
+
+    // Astronaut: fade in after Earth clears, zoom out 4x→1x from visor
+    const astroFade  = easeOut2(c01(p, 0.16, 0.46));
+    const zoomT      = easeInOut(c01(p, 0.10, 0.88));
+    const astroScale = lerp(4.0, 1.0, zoomT);
+    const astroTY    = lerp(30, 0, zoomT);
+
+    // Rack-focus blur: peaks at transition midpoint, clears as astronaut sharpens
+    const blurIn  = c01(p, 0.12, 0.22);
+    const blurOut = c01(p, 0.22, 0.44);
+    const blurPx  = lerp(0, 8, easeOut2(blurIn)) * (1 - easeOut2(blurOut));
+
+    astroLayer.style.opacity = astroFade;
+    astroImg.style.transform = `translateY(${astroTY}vh) scale(${astroScale})`;
+    astroImg.style.filter    = blurPx > 0.15 ? `blur(${blurPx.toFixed(1)}px)` : 'none';
+
+    // Moon atmosphere
+    moonAtmo.style.opacity = easeOut2(c01(p, 0.72, 0.90));
+
+    // Hero tagline
+    const tagOp = 1 - easeOut3(c01(p, 0.04, 0.18));
+    const tagTY = lerp(0, -18, c01(p, 0.04, 0.18));
+    heroTagline.style.opacity = tagOp;
+    heroTagline.style.transform = `translateX(-50%) translateY(${tagTY}px)`;
+
+    // Scroll hint
+    scrollHint.style.opacity = 1 - easeOut3(c01(p, 0.03, 0.12));
+
+    // Brand logo: visible at rest, fades out quickly as scroll begins
+    const logoFade = 1 - easeOut3(c01(p, 0.0, 0.10));
+    brandLogo.style.opacity = logoFade;
+
+    // Header: fade in + frosted glass effect
+    const headerP = easeOut2(c01(p, 0.62, 0.80));
+    siteHeader.style.opacity = headerP;
+    if (headerP > 0.5) {
+      siteHeader.classList.add('visible');
+    } else {
+      siteHeader.classList.remove('visible');
+    }
+
+    // Nav items fly in from sides with DS-style cards
+    navLeftItems.forEach((item, i) => {
+      const itemP = easeOut3(c01(p, 0.82 + i * 0.06, 1.0));
+      item.style.opacity = itemP;
+      item.style.transform = `translateX(${lerp(-60, 0, itemP)}px)`;
+      item.style.pointerEvents = itemP > 0.7 ? 'all' : 'none';
+    });
+    navRightItems.forEach((item, i) => {
+      const itemP = easeOut3(c01(p, 0.82 + i * 0.06, 1.0));
+      item.style.opacity = itemP;
+      item.style.transform = `translateX(${lerp(60, 0, itemP)}px)`;
+      item.style.pointerEvents = itemP > 0.7 ? 'all' : 'none';
+    });
+
+    // Blue burst on nav entrance
+    if (p > 0.84 && !navBurstFired) {
+      navBurstFired = true;
+      allNavItems.forEach((item, i) => {
+        setTimeout(() => {
+          const rect = item.getBoundingClientRect();
+          spawnBurst(rect.left + rect.width / 2, rect.top + rect.height / 2, 24);
+        }, i * 130);
+      });
+    }
+
+    // Social buttons
+    const socialP = easeOut3(c01(p, 0.88, 1.0));
+    document.getElementById('socialBar').style.opacity = socialP;
+    document.getElementById('socialBar').style.pointerEvents = socialP > 0.7 ? 'all' : 'none';
+    document.getElementById('socialBar').style.transform = `translateY(${lerp(20, 0, socialP)}px)`;
+
+    // Explore CTA
+    exploreCta.style.opacity = easeOut2(c01(p, 0.92, 1.0));
+  }
+
+  // ── RESTORE SCROLL POSITION ──────────────────────────────
+  // If user is returning from another page, jump straight to where they left off
+  // so the nav menu stays revealed without re-scrolling.
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  const savedScroll = sessionStorage.getItem('sm3d_scroll');
+  if (savedScroll !== null) {
+    window.scrollTo(0, parseFloat(savedScroll));
+  }
+  window.addEventListener('scroll', () => {
+    sessionStorage.setItem('sm3d_scroll', window.scrollY);
+  }, { passive: true });
+
+  // ── LOOP ─────────────────────────────────────────────────
+  function animate(time) {
+    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    const p = maxScroll > 0 ? clamp(window.scrollY / maxScroll, 0, 1) : 0;
+    update(p, time);
+    drawStars(time);
+    updateParticles();
+    requestAnimationFrame(animate);
+  }
+  requestAnimationFrame(animate);
+
+  // ── HOVER SPARKLES ────────────────────────────────────────
+  allNavItems.forEach(item => {
+    item.addEventListener('mouseenter', () => {
+      const rect = item.getBoundingClientRect();
+      spawnBurst(rect.left + rect.width / 2, rect.top + rect.height / 2, 10);
+    });
+    item.addEventListener('click', e => {
+      // Allow navigation if href is a real link, prevent for "#"
+      if (item.getAttribute('href') === '#') e.preventDefault();
+    });
+  });
+
+  document.querySelectorAll('.header-nav-link, .header-cta, .social-btn').forEach(el => {
+    el.addEventListener('click', e => {
+      if (el.getAttribute('href') === '#' || !el.getAttribute('href')) e.preventDefault();
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flight School — SPACEMAN3D</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="flight-school.css">
+</head>
+<body>
+
+<canvas id="starsCanvas"></canvas>
+
+<div class="page">
+
+  <header class="header">
+    <a class="header-logo" href="index.html">
+      <img src="assets/spaceman-helmet.png" alt="SPACEMAN3D">
+      <span class="header-wordmark">SPACEMAN<span>3D</span></span>
+    </a>
+    <a class="header-back" href="index.html">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to Base
+    </a>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-glow"></div>
+    <div class="hero-badge">
+      <div class="hero-badge-dot"></div>
+      <span class="hero-badge-text">Flight School · Learn 3D Printing</span>
+    </div>
+    <h1>WELCOME TO<br><span>FLIGHT SCHOOL.</span></h1>
+    <p class="hero-sub">From your first print to advanced techniques — guides, courses, and cheat sheets to take you from rookie to mission commander.</p>
+
+    <!-- Coming soon banner -->
+    <div class="coming-soon-banner" style="margin-top:28px;">
+      <div class="coming-soon-banner-inner">
+        <div class="coming-soon-banner-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="coming-soon-banner-text">
+          <strong>Coming Soon</strong>Flight School is in pre-launch — courses, guides, and tutorials are being built. Check back soon for liftoff.
+        </div>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="search-bar">
+      <svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="searchInput" placeholder="Search guides, terms, troubleshooting…">
+    </div>
+  </section>
+
+  <!-- FEATURED COURSE -->
+  <section class="featured-section">
+    <div class="section-label">
+      <div class="section-label-line"></div>
+      <span class="section-label-text">Featured Course</span>
+    </div>
+
+    <div class="featured-card">
+      <div class="featured-visual">
+        <div class="featured-badge">COMING SOON</div>
+        <div class="featured-orbit">
+          <svg viewBox="0 0 200 200" class="orbit-svg">
+            <circle cx="100" cy="100" r="70" fill="none" stroke="rgba(41,121,255,0.2)" stroke-width="1" stroke-dasharray="3 6"/>
+            <circle cx="100" cy="100" r="50" fill="none" stroke="rgba(41,121,255,0.3)" stroke-width="1"/>
+            <circle cx="100" cy="100" r="32" fill="rgba(41,121,255,0.1)" stroke="var(--blue-500)" stroke-width="1.5"/>
+            <text x="100" y="108" text-anchor="middle" font-family="Orbitron" font-weight="900" font-size="22" fill="#fff">01</text>
+          </svg>
+        </div>
+      </div>
+      <div class="featured-content">
+        <div class="featured-meta">
+          <span class="meta-pill">Beginner</span>
+          <span class="meta-dot">·</span>
+          <span class="meta-text">8 lessons</span>
+          <span class="meta-dot">·</span>
+          <span class="meta-text">~45 min</span>
+        </div>
+        <h2>YOUR FIRST<br><span>PRINT.</span></h2>
+        <p>Everything you need to go from unboxing a printer to holding your first finished part. Setup, slicing, materials, and the gotchas no one warns you about.</p>
+        <ul class="featured-list">
+          <li><span class="check">✓</span> Setting up your printer</li>
+          <li><span class="check">✓</span> Bed leveling &amp; first layer</li>
+          <li><span class="check">✓</span> Slicer 101 — settings that matter</li>
+          <li><span class="check">✓</span> Troubleshooting your first failures</li>
+        </ul>
+        <button class="btn-launch cs-disabled" disabled>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          Coming Soon
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOPIC GRID -->
+  <section class="topics-section">
+    <div class="section-label">
+      <div class="section-label-line"></div>
+      <span class="section-label-text">Browse Topics</span>
+    </div>
+
+    <div class="topic-filter">
+      <button class="filter-chip active" data-filter="all">All</button>
+      <button class="filter-chip" data-filter="beginner">Beginner</button>
+      <button class="filter-chip" data-filter="intermediate">Intermediate</button>
+      <button class="filter-chip" data-filter="advanced">Advanced</button>
+      <button class="filter-chip" data-filter="reference">Reference</button>
+    </div>
+
+    <div class="topics-grid" id="topicsGrid"></div>
+  </section>
+
+  <!-- LIBRARY -->
+  <section class="library-section">
+    <div class="library-tabs">
+      <button class="tab active" data-tab="guides">📘 Guides</button>
+      <button class="tab" data-tab="videos">🎬 Videos</button>
+      <button class="tab" data-tab="tips">⚡ Quick Tips</button>
+      <button class="tab" data-tab="glossary">📖 Glossary</button>
+      <button class="tab" data-tab="faq">🛠 Troubleshooting</button>
+    </div>
+    <div class="library-content" id="libraryContent"></div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-strip">
+    <div class="cta-card">
+      <div class="cta-text">
+        <h3>Ready for <span>liftoff?</span></h3>
+        <p>Got a custom print in mind? Skip the learning curve — let our team handle it for you.</p>
+      </div>
+      <a class="cta-btn" href="custom.html">
+        Start a Custom Print
+        <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+    </div>
+  </section>
+
+  <footer>
+    <p>SPACEMAN3D · Flight School · Learn. Print. Repeat.</p>
+  </footer>
+
+</div>
+
+<script src="flight-school.js"></script>
+</body>
+</html>

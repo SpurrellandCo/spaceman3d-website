@@ -1,0 +1,226 @@
+/* ============================================================
+   SPACEMAN3D DESIGN SYSTEM — colors_and_type.css
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+/* ============================================================
+   BASE COLOR TOKENS
+   ============================================================ */
+:root {
+  /* Backgrounds */
+  --color-bg-deep:        #08080F;
+  --color-bg-base:        #0B0C1A;
+  --color-bg-surface:     #0F1020;
+  --color-bg-raised:      #161830;
+  --color-bg-overlay:     #1A1C35;
+
+  /* Brand Blue */
+  --color-blue-500:       #2979FF;
+  --color-blue-400:       #5B9BFF;
+  --color-blue-300:       #90BAFF;
+  --color-blue-600:       #1565C0;
+  --color-blue-700:       #0D47A1;
+  --color-blue-glow:      rgba(41, 121, 255, 0.35);
+
+  /* Helmet / Light Blue (illustrative) */
+  --color-helmet-light:   #A8C8E0;
+  --color-helmet-mid:     #7AACCF;
+  --color-helmet-dark:    #4A8BAD;
+
+  /* Neutrals / Foreground */
+  --color-white:          #FFFFFF;
+  --color-fg1:            #E8EDF5;
+  --color-fg2:            #B0BBCC;
+  --color-fg3:            #8892A4;
+  --color-fg4:            #556070;
+
+  /* Borders */
+  --color-border-subtle:  #1E2040;
+  --color-border-default: #262850;
+  --color-border-strong:  #3A3F70;
+  --color-border-accent:  rgba(41, 121, 255, 0.5);
+
+  /* Semantic */
+  --color-success:        #22C55E;
+  --color-warning:        #F59E0B;
+  --color-error:          #EF4444;
+  --color-info:           #2979FF;
+
+  /* ============================================================
+     SEMANTIC / ROLE ALIASES
+     ============================================================ */
+  --bg:                   var(--color-bg-deep);
+  --bg-card:              var(--color-bg-surface);
+  --bg-raised:            var(--color-bg-raised);
+  --fg:                   var(--color-fg1);
+  --fg-muted:             var(--color-fg3);
+  --fg-subtle:            var(--color-fg4);
+  --accent:               var(--color-blue-500);
+  --accent-hover:         var(--color-blue-400);
+  --accent-press:         var(--color-blue-600);
+  --border:               var(--color-border-default);
+  --glow:                 var(--color-blue-glow);
+
+  /* ============================================================
+     TYPOGRAPHY
+     ============================================================ */
+
+  /* Font families */
+  --font-display:         'Orbitron', sans-serif;
+  --font-body:            'Inter', sans-serif;
+  --font-mono:            'Space Mono', monospace;
+
+  /* Font sizes */
+  --text-xs:              0.75rem;    /* 12px */
+  --text-sm:              0.875rem;   /* 14px */
+  --text-base:            1rem;       /* 16px */
+  --text-lg:              1.125rem;   /* 18px */
+  --text-xl:              1.25rem;    /* 20px */
+  --text-2xl:             1.5rem;     /* 24px */
+  --text-3xl:             1.875rem;   /* 30px */
+  --text-4xl:             2.25rem;    /* 36px */
+  --text-5xl:             3rem;       /* 48px */
+  --text-6xl:             3.75rem;    /* 60px */
+  --text-7xl:             4.5rem;     /* 72px */
+
+  /* Font weights */
+  --weight-light:         300;
+  --weight-regular:       400;
+  --weight-medium:        500;
+  --weight-semibold:      600;
+  --weight-bold:          700;
+  --weight-extrabold:     800;
+  --weight-black:         900;
+
+  /* Line heights */
+  --leading-tight:        1.1;
+  --leading-snug:         1.25;
+  --leading-normal:       1.5;
+  --leading-relaxed:      1.65;
+
+  /* Letter spacing */
+  --tracking-tight:       -0.02em;
+  --tracking-normal:      0em;
+  --tracking-wide:        0.05em;
+  --tracking-wider:       0.1em;
+  --tracking-widest:      0.2em;
+
+  /* ============================================================
+     SPACING SCALE
+     ============================================================ */
+  --space-1:   4px;
+  --space-2:   8px;
+  --space-3:   12px;
+  --space-4:   16px;
+  --space-5:   20px;
+  --space-6:   24px;
+  --space-8:   32px;
+  --space-10:  40px;
+  --space-12:  48px;
+  --space-16:  64px;
+  --space-20:  80px;
+  --space-24:  96px;
+
+  /* ============================================================
+     BORDER RADIUS
+     ============================================================ */
+  --radius-sm:   6px;
+  --radius-md:   12px;
+  --radius-lg:   16px;
+  --radius-xl:   24px;
+  --radius-full: 9999px;
+
+  /* ============================================================
+     SHADOWS / GLOW SYSTEM
+     ============================================================ */
+  --shadow-card:      0 2px 12px rgba(0,0,0,0.5);
+  --shadow-raised:    0 4px 24px rgba(0,0,0,0.6);
+  --shadow-overlay:   0 8px 48px rgba(0,0,0,0.8);
+  --glow-sm:          0 0 12px rgba(41,121,255,0.25);
+  --glow-md:          0 0 24px rgba(41,121,255,0.35);
+  --glow-lg:          0 0 48px rgba(41,121,255,0.45);
+  --glow-cta:         0 0 16px rgba(41,121,255,0.55), 0 4px 24px rgba(0,0,0,0.5);
+
+  /* ============================================================
+     TRANSITIONS
+     ============================================================ */
+  --transition-fast:   150ms ease-out;
+  --transition-base:   200ms ease-out;
+  --transition-slow:   350ms ease-out;
+}
+
+/* ============================================================
+   SEMANTIC HTML TYPE STYLES
+   ============================================================ */
+body {
+  background-color: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 {
+  font-family: var(--font-display);
+  font-size: var(--text-5xl);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-white);
+  text-transform: uppercase;
+}
+
+h2 {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-white);
+  text-transform: uppercase;
+}
+
+h3 {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-fg1);
+}
+
+h4 {
+  font-family: var(--font-body);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-snug);
+  color: var(--color-fg1);
+}
+
+p {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: var(--weight-regular);
+  line-height: var(--leading-relaxed);
+  color: var(--color-fg2);
+}
+
+code, pre {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  background: var(--color-bg-raised);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--color-blue-300);
+}
+
+/* Utility classes */
+.text-accent    { color: var(--accent); }
+.text-muted     { color: var(--fg-muted); }
+.text-white     { color: var(--color-white); }
+.font-display   { font-family: var(--font-display); }
+.font-body      { font-family: var(--font-body); }
+.font-mono      { font-family: var(--font-mono); }
+.uppercase      { text-transform: uppercase; letter-spacing: var(--tracking-wide); }

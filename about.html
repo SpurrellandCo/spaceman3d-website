@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About — SPACEMAN3D</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-deep:#08080F; --bg-surface:#0F1020; --bg-raised:#161830;
+      --blue-500:#2979FF; --blue-400:#5B9BFF; --blue-300:#90BAFF;
+      --fg1:#E8EDF5; --fg2:#B0BBCC; --fg3:#8892A4; --fg4:#556070;
+      --border:#1E2040; --border-strong:#262850;
+      --glow-sm:0 0 12px rgba(41,121,255,0.25);
+      --glow-md:0 0 24px rgba(41,121,255,0.35);
+      --font-display:'Orbitron',sans-serif;
+      --font-body:'Inter',sans-serif;
+      --font-mono:'Space Mono',monospace;
+      --radius-md:12px; --radius-lg:16px; --radius-full:9999px;
+      --transition:150ms ease-out;
+    }
+    *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+    body { background:var(--bg-deep); color:var(--fg1); font-family:var(--font-body); min-height:100vh; -webkit-font-smoothing:antialiased; }
+    #starsCanvas { position:fixed; inset:0; pointer-events:none; z-index:0; }
+
+    .header {
+      position:fixed; top:0; left:0; right:0; z-index:100;
+      height:64px; display:flex; align-items:center; justify-content:space-between;
+      padding:0 32px;
+      background:rgba(8,8,15,0.85); backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--border);
+    }
+    .header-logo { display:flex; align-items:center; gap:12px; text-decoration:none; cursor:pointer; }
+    .header-logo img { width:36px; height:36px; filter:drop-shadow(0 0 10px rgba(41,121,255,0.5)); }
+    .header-wordmark { font-family:var(--font-display); font-size:18px; font-weight:800; color:#fff; letter-spacing:0.08em; text-transform:uppercase; }
+    .header-wordmark span { color:var(--blue-500); }
+    .header-back { display:flex; align-items:center; gap:8px; font-family:var(--font-body); font-size:12px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--fg3); text-decoration:none; transition:color var(--transition); }
+    .header-back:hover { color:var(--blue-400); }
+    .header-back svg { width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+
+    .page { position:relative; z-index:1; padding-top:64px; }
+
+    /* ── HERO ── */
+    .hero {
+      position:relative; padding:120px 64px 80px; text-align:center; overflow:hidden;
+    }
+    .hero-glow {
+      position:absolute; top:-100px; left:50%; transform:translateX(-50%);
+      width:900px; height:500px;
+      background:radial-gradient(ellipse, rgba(41,121,255,0.18) 0%, transparent 70%);
+      pointer-events:none;
+    }
+    .hero-badge {
+      display:inline-flex; align-items:center; gap:8px;
+      background:rgba(41,121,255,0.1); border:1px solid rgba(41,121,255,0.3);
+      border-radius:var(--radius-full); padding:5px 14px; margin-bottom:24px; position:relative;
+    }
+    .hero-badge-dot { width:6px; height:6px; border-radius:50%; background:var(--blue-500); box-shadow:0 0 8px rgba(41,121,255,0.9); animation:pulse 2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100% { box-shadow:0 0 8px rgba(41,121,255,0.9); } 50% { box-shadow:0 0 16px rgba(41,121,255,1), 0 0 24px rgba(41,121,255,0.5); } }
+    .hero-badge-text { font-size:11px; font-weight:700; color:var(--blue-400); letter-spacing:0.1em; text-transform:uppercase; }
+    .hero h1 {
+      font-family:var(--font-display); font-size:clamp(2.6rem,6vw,5rem); font-weight:900; color:#fff;
+      text-transform:uppercase; letter-spacing:0.08em; line-height:1.02; margin-bottom:24px; position:relative;
+    }
+    .hero h1 span { color:var(--blue-500); }
+    .hero-tagline {
+      font-family:var(--font-mono); font-size:13px; color:var(--fg3);
+      letter-spacing:0.2em; text-transform:uppercase; position:relative;
+    }
+
+    /* ── ORIGIN SECTION ── */
+    .origin {
+      max-width:920px; margin:0 auto; padding:60px 64px 80px; position:relative;
+    }
+    .section-label {
+      display:flex; align-items:center; gap:14px; margin-bottom:32px;
+    }
+    .section-label-line { flex:0 0 60px; height:1px; background:linear-gradient(to right, var(--blue-500), transparent); }
+    .section-label-text {
+      font-family:var(--font-display); font-size:11px; font-weight:700;
+      letter-spacing:0.22em; text-transform:uppercase; color:var(--blue-400);
+    }
+
+    .origin h2 {
+      font-family:var(--font-display); font-size:clamp(1.8rem,3.5vw,2.6rem); font-weight:800;
+      color:#fff; text-transform:uppercase; letter-spacing:0.06em; line-height:1.15; margin-bottom:32px;
+    }
+    .origin h2 em { font-style:normal; color:var(--blue-500); }
+
+    .origin-body {
+      display:flex; flex-direction:column; gap:24px;
+    }
+    .origin-body p {
+      font-size:17px; line-height:1.75; color:var(--fg2);
+    }
+    .origin-body p.lead {
+      font-size:19px; color:var(--fg1); font-weight:500;
+      padding-left:20px; border-left:2px solid var(--blue-500);
+    }
+    .origin-body p strong { color:#fff; font-weight:600; }
+
+    /* ── PILLARS ── */
+    .pillars {
+      max-width:1100px; margin:0 auto; padding:60px 64px 100px;
+      display:grid; grid-template-columns:repeat(3, 1fr); gap:20px;
+    }
+    .pillar {
+      background:var(--bg-surface); border:1px solid var(--border);
+      border-radius:var(--radius-lg); padding:32px 28px;
+      transition:border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+      position:relative; overflow:hidden;
+    }
+    .pillar::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:1px;
+      background:linear-gradient(to right, transparent, rgba(41,121,255,0.4), transparent);
+      opacity:0; transition:opacity var(--transition);
+    }
+    .pillar:hover { border-color:rgba(41,121,255,0.4); box-shadow:var(--glow-sm); transform:translateY(-4px); }
+    .pillar:hover::before { opacity:1; }
+    .pillar-icon {
+      width:48px; height:48px; border-radius:var(--radius-md);
+      background:rgba(41,121,255,0.1); border:1px solid rgba(41,121,255,0.25);
+      display:flex; align-items:center; justify-content:center; margin-bottom:20px;
+    }
+    .pillar-icon svg { width:22px; height:22px; stroke:var(--blue-400); fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+    .pillar-num {
+      font-family:var(--font-mono); font-size:11px; color:var(--fg4);
+      letter-spacing:0.15em; margin-bottom:8px;
+    }
+    .pillar h3 {
+      font-family:var(--font-display); font-size:18px; font-weight:700;
+      color:#fff; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:12px;
+    }
+    .pillar p {
+      font-size:14px; line-height:1.65; color:var(--fg3);
+    }
+
+    /* ── CTA STRIP ── */
+    .cta-strip {
+      max-width:1100px; margin:0 auto 100px; padding:0 64px;
+    }
+    .cta-card {
+      background:linear-gradient(135deg, rgba(41,121,255,0.12), rgba(41,121,255,0.02));
+      border:1px solid rgba(41,121,255,0.3);
+      border-radius:var(--radius-lg);
+      padding:48px 56px;
+      display:flex; align-items:center; justify-content:space-between; gap:32px;
+      position:relative; overflow:hidden;
+    }
+    .cta-card::after {
+      content:''; position:absolute; top:-40%; right:-10%;
+      width:300px; height:300px;
+      background:radial-gradient(circle, rgba(41,121,255,0.18) 0%, transparent 70%);
+      pointer-events:none;
+    }
+    .cta-text { position:relative; z-index:1; }
+    .cta-text h3 {
+      font-family:var(--font-display); font-size:1.8rem; font-weight:900;
+      color:#fff; text-transform:uppercase; letter-spacing:0.05em;
+      line-height:1.1; margin-bottom:8px;
+    }
+    .cta-text h3 span { color:var(--blue-400); }
+    .cta-text p { color:var(--fg2); font-size:15px; max-width:420px; }
+
+    .cta-btn {
+      font-family:var(--font-display); font-size:13px; font-weight:700;
+      letter-spacing:0.12em; text-transform:uppercase;
+      padding:14px 32px; border-radius:var(--radius-full);
+      background:var(--blue-500); color:#fff; border:none; cursor:pointer;
+      box-shadow:0 0 20px rgba(41,121,255,0.55), 0 4px 24px rgba(0,0,0,0.5);
+      transition:all var(--transition); white-space:nowrap;
+      display:flex; align-items:center; gap:10px; text-decoration:none;
+      position:relative; z-index:1;
+    }
+    .cta-btn:hover { background:var(--blue-400); transform:translateY(-1px); box-shadow:0 0 32px rgba(41,121,255,0.7), 0 4px 24px rgba(0,0,0,0.5); }
+    .cta-btn svg { width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; }
+
+    /* ── FOOTER ── */
+    footer { padding:32px 64px 48px; text-align:center; border-top:1px solid var(--border); }
+    footer p { font-family:var(--font-mono); font-size:11px; color:var(--fg4); letter-spacing:0.2em; text-transform:uppercase; }
+
+    @media (max-width:900px) {
+      .pillars { grid-template-columns:1fr; padding:40px 32px 80px; }
+      .cta-card { flex-direction:column; align-items:flex-start; padding:32px; }
+      .origin, .hero, .cta-strip { padding-left:32px; padding-right:32px; }
+    }
+    @media (max-width:600px) {
+      .header { padding:0 16px; }
+      .header-wordmark { font-size:15px; letter-spacing:0.06em; }
+      .header-logo img { width:30px; height:30px; }
+      .header-logo { gap:8px; }
+      .header-back span, .header-back { font-size:11px; }
+      .hero { padding:80px 20px 48px; }
+      .hero h1 { letter-spacing:0.06em; }
+      .origin { padding:40px 20px 56px; }
+      .origin h2 { font-size:1.5rem; }
+      .origin-body p { font-size:15px; }
+      .origin-body p.lead { font-size:16px; padding-left:14px; }
+      .pillars { padding:32px 20px 64px; }
+      .pillar { padding:24px 20px; }
+      .cta-strip { padding:0 20px; margin-bottom:60px; }
+      .cta-card { padding:24px; }
+      .cta-text h3 { font-size:1.4rem; }
+      .cta-btn { width:100%; justify-content:center; }
+      footer { padding:24px 20px 32px; }
+    }
+
+    ::-webkit-scrollbar { width:6px; }
+    ::-webkit-scrollbar-track { background:var(--bg-deep); }
+    ::-webkit-scrollbar-thumb { background:var(--border-strong); border-radius:3px; }
+  </style>
+</head>
+<body>
+
+<canvas id="starsCanvas"></canvas>
+
+<div class="page">
+
+  <header class="header">
+    <a class="header-logo" href="index.html">
+      <img src="assets/spaceman-helmet.png" alt="SPACEMAN3D">
+      <span class="header-wordmark">SPACEMAN<span>3D</span></span>
+    </a>
+    <a class="header-back" href="index.html">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to Base
+    </a>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-glow"></div>
+    <div class="hero-badge">
+      <div class="hero-badge-dot"></div>
+      <span class="hero-badge-text">About Spaceman3D</span>
+    </div>
+    <h1>BUILT FOR<br><span>EVERY DAY.</span></h1>
+    <div class="hero-tagline">// Practical things, made well //</div>
+  </section>
+
+  <!-- ORIGIN STORY -->
+  <section class="origin">
+    <div class="section-label">
+      <div class="section-label-line"></div>
+      <span class="section-label-text">Our Story</span>
+    </div>
+    <h2>We make practical things <em>that just work.</em></h2>
+    <div class="origin-body">
+      <p class="lead">It started with a simple idea — build useful products, design them well, and make them easy for anyone to use.</p>
+      <p>What began as a few prints has turned into a growing lineup of designs made for real everyday problems. Everything is designed <strong>in-house</strong> with a focus on clean looks, durability, and simplicity. No overcomplication. If it doesn't serve a purpose, it doesn't make the cut.</p>
+      <p>We're always testing new ideas, improving designs, and pushing what 3D printing can actually be used for — not just cool prototypes, but <strong>real products people use every day</strong>.</p>
+    </div>
+  </section>
+
+  <!-- PILLARS -->
+  <section class="pillars">
+
+    <div class="pillar">
+      <div class="pillar-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+      </div>
+      <div class="pillar-num">01</div>
+      <h3>Designed In-House</h3>
+      <p>Every product starts on our screens, gets refined through real-world testing, and is shipped only when it earns its place.</p>
+    </div>
+
+    <div class="pillar">
+      <div class="pillar-icon">
+        <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      </div>
+      <div class="pillar-num">02</div>
+      <h3>Built To Last</h3>
+      <p>Durable materials, clean lines, and no unnecessary parts. Form follows function — every single time.</p>
+    </div>
+
+    <div class="pillar">
+      <div class="pillar-icon">
+        <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      </div>
+      <div class="pillar-num">03</div>
+      <h3>Always Iterating</h3>
+      <p>3D printing isn't just for prototypes. We're pushing what it can do — testing, refining, and shipping new ideas constantly.</p>
+    </div>
+
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-strip">
+    <div class="cta-card">
+      <div class="cta-text">
+        <h3>Got an idea? <span>Let's print it.</span></h3>
+        <p>Whether you need one or one thousand, we'll bring your design to life. No commitment — just send us your specs.</p>
+      </div>
+      <a class="cta-btn" href="custom.html">
+        Start a Custom Print
+        <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+    </div>
+  </section>
+
+  <footer>
+    <p>SPACEMAN3D · EST. 2026 · Tranquility Base</p>
+  </footer>
+
+</div>
+
+<script>
+  // ── STAR BACKGROUND (matches landing) ──
+  const sc = document.getElementById('starsCanvas');
+  const sx = sc.getContext('2d');
+  let stars = [];
+
+  function resizeStars() {
+    sc.width = window.innerWidth;
+    sc.height = Math.max(window.innerHeight, document.body.scrollHeight);
+    stars = [];
+    const count = Math.min(400, Math.floor(sc.width * sc.height / 4500));
+    for (let i = 0; i < count; i++) {
+      const roll = Math.random();
+      const type = roll > 0.92 ? 1 : roll > 0.78 ? 2 : 0;
+      stars.push({
+        x: Math.random() * sc.width,
+        y: Math.random() * sc.height,
+        r: type === 1 ? Math.random() * 1.1 + 0.6 : Math.random() * 0.9 + 0.1,
+        baseAlpha: type === 1 ? 0.85 : Math.random() * 0.55 + 0.15,
+        phase: Math.random() * Math.PI * 2,
+        phase2: Math.random() * Math.PI * 2,
+        speed: type === 2 ? Math.random() * 3 + 2 : Math.random() * 0.6 + 0.2,
+        speed2: Math.random() * 1.4 + 0.4,
+        type,
+        color: roll > 0.85 ? '#90BAFF' : roll > 0.7 ? '#A8C8E0' : '#FFFFFF',
+      });
+    }
+  }
+
+  function drawStars(time) {
+    sx.clearRect(0, 0, sc.width, sc.height);
+    const t = time * 0.001;
+    const scrollY = window.scrollY;
+    stars.forEach(s => {
+      const y = s.y - scrollY * 0.3; // subtle parallax
+      if (y < -10 || y > sc.height + 10) return;
+      let twinkle, r;
+      if (s.type === 1) {
+        const raw = Math.sin(t * s.speed + s.phase);
+        twinkle = Math.pow(Math.max(0, raw), 4);
+        r = s.r * (0.6 + 0.7 * twinkle);
+        if (twinkle > 0.5) {
+          const glow = sx.createRadialGradient(s.x, y, 0, s.x, y, r * 5);
+          glow.addColorStop(0, `rgba(41,121,255,${0.3 * twinkle})`);
+          glow.addColorStop(1, 'rgba(41,121,255,0)');
+          sx.fillStyle = glow;
+          sx.beginPath(); sx.arc(s.x, y, r * 5, 0, Math.PI * 2); sx.fill();
+        }
+      } else if (s.type === 2) {
+        const a = 0.5 + 0.5 * Math.sin(t * s.speed + s.phase);
+        const b = 0.5 + 0.5 * Math.sin(t * s.speed2 * 1.7 + s.phase2);
+        twinkle = a * b; r = s.r;
+      } else {
+        const a = 0.5 + 0.5 * Math.sin(t * s.speed + s.phase);
+        const b = 0.5 + 0.5 * Math.sin(t * s.speed2 + s.phase2);
+        twinkle = 0.3 + 0.7 * (a * 0.6 + b * 0.4); r = s.r;
+      }
+      const alpha = s.baseAlpha * twinkle;
+      if (alpha < 0.01) return;
+      sx.globalAlpha = alpha;
+      sx.fillStyle = s.color;
+      sx.beginPath(); sx.arc(s.x, y, r, 0, Math.PI * 2); sx.fill();
+    });
+    sx.globalAlpha = 1;
+  }
+
+  window.addEventListener('resize', resizeStars);
+  resizeStars();
+  function loop(t) { drawStars(t); requestAnimationFrame(loop); }
+  requestAnimationFrame(loop);
+</script>
+</body>
+</html>
