@@ -169,7 +169,7 @@ footer p { font-family:var(--font-mono); font-size:11px; color:var(--fg4); lette
   .header-wordmark { font-size:15px; letter-spacing:0.06em; }
   .header-logo img { width:30px; height:30px; }
   .header-logo { gap:8px; }
-  .header-back { font-size:11px; }
+  .header-back { font-size:11px; min-height:44px; padding:0 4px; }
   .hero { padding:64px 20px 36px; }
   .hero h1 { letter-spacing:0.06em; }
   .hero-sub { font-size:14px; }
@@ -184,10 +184,10 @@ footer p { font-family:var(--font-mono); font-size:11px; color:var(--fg4); lette
   .topics-grid { grid-template-columns:1fr; }
   .topic-card { padding:20px; min-height:0; }
   .topic-filter { gap:6px; }
-  .filter-chip { padding:7px 14px; font-size:11px; }
+  .filter-chip { padding:11px 14px; font-size:11px; min-height:44px; }
   .library-tabs { gap:0; overflow-x:auto; white-space:nowrap; flex-wrap:nowrap; padding-bottom:2px; }
   .library-tabs::-webkit-scrollbar { display:none; }
-  .tab { padding:10px 14px; font-size:12px; }
+  .tab { padding:13px 14px; font-size:12px; min-height:44px; }
   .lib-item { padding:14px; gap:12px; }
   .lib-item-icon { width:32px; height:32px; font-size:14px; }
   .lib-item-title { font-size:13px; }
