@@ -104,6 +104,8 @@
     }
     ::-webkit-scrollbar { width:6px; } ::-webkit-scrollbar-track { background:var(--bg-deep); } ::-webkit-scrollbar-thumb { background:var(--border-strong); border-radius:3px; }
   </style>
+  <script src="js/config.js"></script>
+  <script src="js/auth-nav.js" defer></script>
 </head>
 <body>
 
@@ -116,10 +118,13 @@
       <img src="assets/spaceman-helmet.png" alt="SPACEMAN3D">
       <span class="header-wordmark">SPACEMAN<span>3D</span></span>
     </a>
-    <a class="header-back" href="index.html">
-      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-      Back to Base
-    </a>
+    <div style="display:flex;align-items:center;gap:14px;">
+      <a class="header-back" href="index.html">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to Base
+      </a>
+      <div id="auth-nav-slot"></div>
+    </div>
   </header>
 
   <section class="hero">

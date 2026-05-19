@@ -8,6 +8,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="flight-school.css">
+  <script src="js/config.js"></script>
+  <script src="js/auth-nav.js" defer></script>
 </head>
 <body>
 
@@ -20,10 +22,13 @@
       <img src="assets/spaceman-helmet.png" alt="SPACEMAN3D">
       <span class="header-wordmark">SPACEMAN<span>3D</span></span>
     </a>
-    <a class="header-back" href="index.html">
-      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-      Back to Base
-    </a>
+    <div style="display:flex;align-items:center;gap:14px;">
+      <a class="header-back" href="index.html">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to Base
+      </a>
+      <div id="auth-nav-slot"></div>
+    </div>
   </header>
 
   <!-- HERO -->
