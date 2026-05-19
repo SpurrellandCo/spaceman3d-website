@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — SPACEMAN3D</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;800;900&family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <script src="../js/config.js"></script>
+  <style>
+    :root {
+      --color-bg-deep:      #08080F;
+      --color-bg-surface:   #0F1020;
+      --color-bg-raised:    #161830;
+      --color-blue-500:     #2979FF;
+      --color-blue-400:     #5B9BFF;
+      --color-white:        #FFFFFF;
+      --color-fg1:          #E8EDF5;
+      --color-fg2:          #B0BBCC;
+      --color-fg3:          #8892A4;
+      --color-border:       #1E2040;
+      --color-border-strong:#262850;
+      --color-success:      #22D3A4;
+      --color-warning:      #FBBF24;
+      --color-error:        #FF4D6A;
+      --font-display:       'Orbitron', sans-serif;
+      --font-body:          'Inter', sans-serif;
+      --font-mono:          'Space Mono', monospace;
+      --radius-sm:          6px;
+      --radius-md:          12px;
+      --radius-full:        9999px;
+      --transition-fast:    150ms ease-out;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { min-height: 100vh; }
+    body {
+      background: var(--color-bg-deep);
+      font-family: var(--font-body);
+      -webkit-font-smoothing: antialiased;
+      color: var(--color-fg1);
+    }
+
+    /* ── HEADER ── */
+    .header {
+      height: 64px;
+      background: rgba(8,8,15,0.95);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    .header-logo {
+      display: flex; align-items: center; gap: 10px; text-decoration: none;
+    }
+    .header-logo img { width: 28px; height: 28px; filter: drop-shadow(0 0 8px rgba(41,121,255,0.5)); }
+    .header-wordmark {
+      font-family: var(--font-display);
+      font-size: 14px; font-weight: 800;
+      color: var(--color-white);
+      letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .header-wordmark span { color: var(--color-blue-500); }
+    .header-badge {
+      padding: 3px 10px;
+      background: rgba(255,77,106,0.12);
+      border: 1px solid rgba(255,77,106,0.3);
+      border-radius: var(--radius-full);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--color-error);
+    }
+    .btn-outline {
+      padding: 7px 16px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--color-border-strong);
+      background: transparent;
+      color: var(--color-fg2);
+      font-size: 12px; font-weight: 600;
+      cursor: pointer; text-decoration: none;
+      display: inline-flex; align-items: center;
+      transition: border-color var(--transition-fast), color var(--transition-fast);
+    }
+    .btn-outline:hover { border-color: var(--color-blue-500); color: var(--color-blue-400); }
+
+    /* ── LAYOUT ── */
+    .layout { display: flex; min-height: calc(100vh - 64px); }
+
+    /* Sidebar nav */
+    .sidebar {
+      width: 220px;
+      flex-shrink: 0;
+      background: var(--color-bg-surface);
+      border-right: 1px solid var(--color-border);
+      padding: 24px 0;
+    }
+    .sidebar-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--color-fg3);
+      padding: 0 20px;
+      margin-bottom: 8px;
+    }
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--color-fg2);
+      cursor: pointer;
+      transition: background var(--transition-fast), color var(--transition-fast);
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      border-left: 3px solid transparent;
+    }
+    .sidebar-item:hover { background: var(--color-bg-raised); color: var(--color-fg1); }
+    .sidebar-item.active {
+      background: rgba(41,121,255,0.08);
+      color: var(--color-blue-400);
+      border-left-color: var(--color-blue-500);
+    }
+    .sidebar-count {
+      margin-left: auto;
+      padding: 2px 7px;
+      background: var(--color-bg-raised);
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--color-fg3);
+    }
+
+    /* Content area */
+    .content { flex: 1; padding: 40px; overflow-x: auto; }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .content-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      margin-bottom: 24px;
+    }
+
+    /* ── TABLE ── */
+    .table-wrap { overflow-x: auto; border-radius: var(--radius-md); border: 1px solid var(--color-border-strong); }
+    table { width: 100%; border-collapse: collapse; min-width: 600px; }
+    thead { background: var(--color-bg-raised); }
+    th {
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--color-fg3);
+      white-space: nowrap;
+    }
+    td {
+      padding: 14px 16px;
+      font-size: 13px;
+      color: var(--color-fg2);
+      border-top: 1px solid var(--color-border);
+      vertical-align: top;
+    }
+    tr:hover td { background: rgba(41,121,255,0.03); }
+    .mono { font-family: var(--font-mono); font-size: 11px; color: var(--color-fg3); }
+
+    /* Status badge */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+    .badge-active    { background: rgba(34,211,164,0.1); border: 1px solid rgba(34,211,164,0.25); color: var(--color-success); }
+    .badge-paid      { background: rgba(34,211,164,0.1); border: 1px solid rgba(34,211,164,0.25); color: var(--color-success); }
+    .badge-shipped   { background: rgba(41,121,255,0.1); border: 1px solid rgba(41,121,255,0.25); color: var(--color-blue-400); }
+    .badge-prod      { background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.25); color: var(--color-warning); }
+    .badge-pending   { background: rgba(136,146,164,0.1); border: 1px solid rgba(136,146,164,0.2); color: var(--color-fg3); }
+    .badge-canceled  { background: rgba(255,77,106,0.1); border: 1px solid rgba(255,77,106,0.2); color: var(--color-error); }
+    .badge-past_due  { background: rgba(255,77,106,0.1); border: 1px solid rgba(255,77,106,0.2); color: var(--color-error); }
+    .badge-trialing  { background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.25); color: var(--color-warning); }
+
+    /* ── DETAIL PANEL ── */
+    .detail-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(8,8,15,0.7);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      display: none;
+      align-items: flex-start;
+      justify-content: flex-end;
+    }
+    .detail-overlay.open { display: flex; }
+    .detail-panel {
+      width: 480px;
+      max-width: 100vw;
+      height: 100vh;
+      background: var(--color-bg-surface);
+      border-left: 1px solid var(--color-border-strong);
+      overflow-y: auto;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .detail-panel-header { display: flex; align-items: center; justify-content: space-between; }
+    .detail-panel-title { font-family: var(--font-display); font-size: 16px; font-weight: 800; letter-spacing: 0.04em; }
+    .btn-close {
+      width: 32px; height: 32px;
+      border: none;
+      background: var(--color-bg-raised);
+      border-radius: var(--radius-sm);
+      color: var(--color-fg3);
+      font-size: 18px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: color var(--transition-fast);
+    }
+    .btn-close:hover { color: var(--color-fg1); }
+
+    .field-group { }
+    .field-group-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--color-fg3);
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .field-row { display: grid; grid-template-columns: 140px 1fr; gap: 8px; margin-bottom: 8px; }
+    .field-key { font-size: 12px; color: var(--color-fg3); font-weight: 600; padding-top: 1px; }
+    .field-val { font-size: 13px; color: var(--color-fg1); word-break: break-all; }
+
+    /* Inline editable order status */
+    .edit-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    select.edit-select {
+      background: var(--color-bg-raised);
+      border: 1px solid var(--color-border-strong);
+      border-radius: var(--radius-sm);
+      color: var(--color-fg1);
+      font-size: 13px;
+      padding: 6px 10px;
+      outline: none;
+      cursor: pointer;
+    }
+    input.edit-input {
+      background: var(--color-bg-raised);
+      border: 1px solid var(--color-border-strong);
+      border-radius: var(--radius-sm);
+      color: var(--color-fg1);
+      font-size: 13px;
+      padding: 6px 10px;
+      outline: none;
+      flex: 1;
+      min-width: 0;
+    }
+    input.edit-input:focus, select.edit-select:focus { border-color: var(--color-blue-500); }
+    .btn-save {
+      padding: 6px 14px;
+      background: var(--color-blue-500);
+      border: none;
+      border-radius: var(--radius-sm);
+      color: var(--color-white);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .btn-save:hover { background: var(--color-blue-400); }
+    .save-feedback { font-size: 12px; color: var(--color-success); display: none; }
+    .save-feedback.show { display: inline; }
+
+    /* Loading / empty */
+    .skeleton {
+      background: linear-gradient(90deg, var(--color-bg-raised) 25%, var(--color-bg-surface) 50%, var(--color-bg-raised) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: var(--radius-sm);
+    }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    .empty { padding: 40px; text-align: center; color: var(--color-fg3); font-size: 14px; }
+
+    /* ── FEATURE TOGGLE ── */
+    .feature-filter-bar { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    .feature-filter-btn {
+      padding: 5px 14px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--color-border-strong);
+      background: transparent;
+      color: var(--color-fg3);
+      font-size: 12px; font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    .feature-filter-btn:hover { border-color: var(--color-blue-400); color: var(--color-blue-400); }
+    .feature-filter-btn.active {
+      background: rgba(41,121,255,0.12);
+      border-color: rgba(41,121,255,0.4);
+      color: var(--color-blue-400);
+    }
+    .feature-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--color-border);
+      transition: background var(--transition-fast);
+    }
+    .feature-row:last-child { border-bottom: none; }
+    .feature-row:hover { background: rgba(41,121,255,0.03); }
+    .feature-row-left { display: flex; align-items: flex-start; gap: 12px; min-width: 0; }
+    .feature-app-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 5px;
+    }
+    .feature-app-dot.cookie { background: #FF9A3C; }
+    .feature-app-dot.terrain3d { background: var(--color-blue-400); }
+    .feature-info { min-width: 0; }
+    .feature-label {
+      font-size: 14px; font-weight: 600;
+      color: var(--color-fg1);
+      margin-bottom: 2px;
+    }
+    .feature-desc { font-size: 12px; color: var(--color-fg3); }
+    .feature-app-tag {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+      padding: 2px 7px; border-radius: var(--radius-full);
+      margin-left: 8px; vertical-align: middle;
+    }
+    .feature-app-tag.cookie { background: rgba(255,154,60,0.12); border: 1px solid rgba(255,154,60,0.3); color: #FF9A3C; }
+    .feature-app-tag.terrain3d { background: rgba(41,121,255,0.12); border: 1px solid rgba(41,121,255,0.3); color: var(--color-blue-400); }
+
+    /* Toggle switch */
+    .toggle-wrap { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .toggle-label-free    { font-size: 11px; font-weight: 600; color: var(--color-fg3); transition: color var(--transition-fast); }
+    .toggle-label-premium { font-size: 11px; font-weight: 600; color: var(--color-fg3); transition: color var(--transition-fast); }
+    .toggle-wrap.is-premium .toggle-label-premium { color: var(--color-blue-400); }
+    .toggle-wrap.is-free    .toggle-label-free    { color: var(--color-success); }
+    .toggle {
+      position: relative; width: 44px; height: 24px;
+      cursor: pointer; flex-shrink: 0;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .toggle-track {
+      position: absolute; inset: 0;
+      background: rgba(34,211,164,0.2);
+      border: 1px solid rgba(34,211,164,0.4);
+      border-radius: 12px;
+      transition: all 200ms ease;
+    }
+    .toggle input:checked ~ .toggle-track {
+      background: rgba(41,121,255,0.2);
+      border-color: rgba(41,121,255,0.5);
+    }
+    .toggle-thumb {
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--color-success);
+      transition: all 200ms ease;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+    }
+    .toggle input:checked ~ .toggle-track .toggle-thumb {
+      transform: translateX(20px);
+      background: var(--color-blue-400);
+    }
+    .features-table-wrap {
+      background: var(--color-bg-surface);
+      border: 1px solid var(--color-border-strong);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+    .features-table-head {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      padding: 10px 20px;
+      background: var(--color-bg-raised);
+      border-bottom: 1px solid var(--color-border);
+      font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; color: var(--color-fg3);
+    }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-left">
+    <a href="/" class="header-logo">
+      <img src="../assets/spaceman-logo.png" alt="Spaceman3D">
+      <span class="header-wordmark">SPACEMAN<span>3D</span></span>
+    </a>
+    <span class="header-badge">Admin</span>
+  </div>
+  <a href="/dashboard.html" class="btn-outline">Back to Dashboard</a>
+</header>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-label">Sections</div>
+    <button class="sidebar-item active" data-tab="orders">Orders <span class="sidebar-count" id="count-orders">—</span></button>
+    <button class="sidebar-item" data-tab="users">Users <span class="sidebar-count" id="count-users">—</span></button>
+    <button class="sidebar-item" data-tab="subscriptions">Subscriptions <span class="sidebar-count" id="count-subs">—</span></button>
+    <button class="sidebar-item" data-tab="apps">Apps</button>
+    <button class="sidebar-item" data-tab="features">Features</button>
+  </nav>
+
+  <!-- Main content -->
+  <div class="content">
+
+    <!-- ── ORDERS ── -->
+    <div class="tab-panel active" id="tab-orders">
+      <div class="content-title">Orders</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Date</th>
+              <th>Customer</th>
+              <th>Items</th>
+              <th>Total</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-orders">
+            <tr><td colspan="6"><div class="skeleton" style="height:14px;margin:8px 0"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── USERS ── -->
+    <div class="tab-panel" id="tab-users">
+      <div class="content-title">Users</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Name</th>
+              <th>Role</th>
+              <th>Subscriptions</th>
+              <th>Joined</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-users">
+            <tr><td colspan="5"><div class="skeleton" style="height:14px;margin:8px 0"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── SUBSCRIPTIONS ── -->
+    <div class="tab-panel" id="tab-subscriptions">
+      <div class="content-title">Subscriptions</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Customer</th>
+              <th>App</th>
+              <th>Tier</th>
+              <th>Status</th>
+              <th>Renews</th>
+              <th>Stripe ID</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-subs">
+            <tr><td colspan="6"><div class="skeleton" style="height:14px;margin:8px 0"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── FEATURES ── -->
+    <div class="tab-panel" id="tab-features">
+      <div class="content-title">App Features</div>
+      <div class="feature-filter-bar" id="feature-filter-bar">
+        <button class="feature-filter-btn active" data-app="all">All Apps</button>
+        <button class="feature-filter-btn" data-app="cookie">Cookie Cutter</button>
+        <button class="feature-filter-btn" data-app="terrain3d">Terrain3D</button>
+      </div>
+      <div class="features-table-wrap">
+        <div class="features-table-head">
+          <span>Feature</span>
+          <span>Free &nbsp;/&nbsp; Premium</span>
+        </div>
+        <div id="features-list">
+          <div class="empty">Loading…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── APPS ── -->
+    <div class="tab-panel" id="tab-apps">
+      <div class="content-title">Registered Apps</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>App ID</th>
+              <th>Name</th>
+              <th>URL</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-apps">
+            <tr><td colspan="4"><div class="skeleton" style="height:14px;margin:8px 0"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── ORDER DETAIL PANEL ── -->
+<div class="detail-overlay" id="order-overlay">
+  <div class="detail-panel" id="order-panel">
+    <div class="detail-panel-header">
+      <div class="detail-panel-title" id="panel-order-id">Order</div>
+      <button class="btn-close" id="btn-close-order">×</button>
+    </div>
+
+    <div class="field-group">
+      <div class="field-group-title">Customer</div>
+      <div id="panel-customer"></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-group-title">Shipping</div>
+      <div id="panel-shipping"></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-group-title">Items</div>
+      <div id="panel-items"></div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-group-title">Order Status</div>
+      <div class="edit-row">
+        <select class="edit-select" id="status-select">
+          <option value="pending_payment">Pending Payment</option>
+          <option value="paid">Paid</option>
+          <option value="in_production">In Production</option>
+          <option value="printed">Printed</option>
+          <option value="shipped">Shipped</option>
+          <option value="canceled">Canceled</option>
+          <option value="refunded">Refunded</option>
+        </select>
+        <button class="btn-save" id="btn-save-status">Save</button>
+        <span class="save-feedback" id="status-saved">Saved</span>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-group-title">Tracking Number</div>
+      <div class="edit-row">
+        <input class="edit-input" type="text" id="tracking-input" placeholder="e.g. 1Z999AA10123456784">
+        <button class="btn-save" id="btn-save-tracking">Save</button>
+        <span class="save-feedback" id="tracking-saved">Saved</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── USER DETAIL PANEL ── -->
+<div class="detail-overlay" id="user-overlay">
+  <div class="detail-panel" id="user-panel">
+    <div class="detail-panel-header">
+      <div class="detail-panel-title" id="panel-user-email">User</div>
+      <button class="btn-close" id="btn-close-user">×</button>
+    </div>
+    <div class="field-group">
+      <div class="field-group-title">Account Info</div>
+      <div id="panel-user-info"></div>
+    </div>
+    <div class="field-group">
+      <div class="field-group-title">Subscriptions</div>
+      <div id="panel-user-subs"></div>
+    </div>
+    <div class="field-group">
+      <div class="field-group-title">Recent Orders</div>
+      <div id="panel-user-orders"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const API_URL = window.SM3D_CONFIG?.API_URL || 'https://api.spaceman3d.com';
+
+  // ── Auth guard ────────────────────────────────────
+  if (!localStorage.getItem('access_token')) {
+    window.location.href = '/login.html?redirect=' + encodeURIComponent(window.location.href);
+  }
+
+  function authHeaders() {
+    return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('access_token')}` };
+  }
+
+  async function apiFetch(path, options = {}) {
+    const res = await fetch(`${API_URL}${path}`, { ...options, headers: { ...authHeaders(), ...(options.headers || {}) } });
+    if (res.status === 401) {
+      const userId = localStorage.getItem('user_id');
+      const rt = localStorage.getItem('refresh_token');
+      if (!userId || !rt) { redirectLogin(); return null; }
+      const r = await fetch(`${API_URL}/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, refreshToken: rt }),
+      });
+      if (!r.ok) { redirectLogin(); return null; }
+      const { accessToken, refreshToken: newRefresh } = await r.json();
+      localStorage.setItem('access_token', accessToken);
+      localStorage.setItem('refresh_token', newRefresh);
+      return fetch(`${API_URL}${path}`, { headers: authHeaders(), ...options });
+    }
+    if (res.status === 403) {
+      document.body.innerHTML = '<div style="padding:80px;text-align:center;color:#FF4D6A;font-family:Orbitron,sans-serif;font-size:18px">Access Denied — Admin only</div>';
+      return null;
+    }
+    return res;
+  }
+
+  function redirectLogin() {
+    localStorage.clear();
+    window.location.href = '/login.html';
+  }
+
+  // ── Tab nav ───────────────────────────────────────
+  document.querySelectorAll('.sidebar-item').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.sidebar-item').forEach((b) => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach((p) => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
+    });
+  });
+
+  // ── Helpers ───────────────────────────────────────
+  function esc(s) {
+    return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function orderBadge(status) {
+    const labels = { pending_payment: 'Pending', paid: 'Paid', in_production: 'In Production', printed: 'Printed', shipped: 'Shipped', canceled: 'Canceled', refunded: 'Refunded' };
+    const cls = { pending_payment: 'pending', paid: 'paid', in_production: 'prod', printed: 'prod', shipped: 'shipped', canceled: 'canceled', refunded: 'canceled' };
+    return `<span class="badge badge-${cls[status] || 'pending'}">${labels[status] || esc(status)}</span>`;
+  }
+
+  function subBadge(status) {
+    const cls = { active: 'active', trialing: 'trialing', canceled: 'canceled', past_due: 'past_due' };
+    return `<span class="badge badge-${cls[status] || 'pending'}">${esc(status)}</span>`;
+  }
+
+  function fmtDate(d) {
+    return d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+  }
+
+  function fmtAddr(a) {
+    if (!a) return '—';
+    return [a.line1, a.line2, a.city, a.state, a.postal_code, a.country].filter(Boolean).join(', ');
+  }
+
+  function fieldRow(key, val) {
+    return `<div class="field-row"><div class="field-key">${esc(key)}</div><div class="field-val">${val}</div></div>`;
+  }
+
+  // ── Current order ID in panel ─────────────────────
+  let currentOrderId = null;
+
+  // ── ORDERS ───────────────────────────────────────
+  async function loadOrders() {
+    const res = await apiFetch('/admin/orders');
+    if (!res) return;
+    const orders = await res.json();
+    document.getElementById('count-orders').textContent = orders.length;
+
+    const tbody = document.getElementById('tbody-orders');
+    if (!orders.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty">No orders yet.</td></tr>'; return; }
+
+    tbody.innerHTML = orders.map((o) => {
+      const items = (o.items || []).map((i) => esc(i.itemName)).join(', ') || '—';
+      const customer = `${esc(o.shippingName || '')} <span class="mono">${esc(o.customerEmail)}</span>`;
+      return `<tr style="cursor:pointer" data-order-id="${o.id}">
+        <td><span class="mono">#${o.id.slice(0,8).toUpperCase()}</span></td>
+        <td>${fmtDate(o.createdAt)}</td>
+        <td>${customer}</td>
+        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${items}</td>
+        <td>$${parseFloat(o.grandTotal).toFixed(2)}</td>
+        <td>${orderBadge(o.orderStatus)}</td>
+      </tr>`;
+    }).join('');
+
+    tbody.querySelectorAll('tr').forEach((row) => {
+      row.addEventListener('click', () => openOrderPanel(row.dataset.orderId, orders));
+    });
+  }
+
+  function openOrderPanel(orderId, orders) {
+    currentOrderId = orderId;
+    const o = orders.find((x) => x.id === orderId);
+    if (!o) return;
+
+    document.getElementById('panel-order-id').textContent = `#${o.id.slice(0, 8).toUpperCase()}`;
+
+    document.getElementById('panel-customer').innerHTML =
+      fieldRow('Email', `<span class="mono">${esc(o.customerEmail)}</span>`) +
+      fieldRow('Name', esc(o.shippingName)) +
+      fieldRow('Payment', esc(o.paymentStatus)) +
+      fieldRow('Stripe ID', o.stripeCheckoutSessionId ? `<span class="mono">${esc(o.stripeCheckoutSessionId)}</span>` : '—');
+
+    document.getElementById('panel-shipping').innerHTML =
+      fieldRow('Address', esc(fmtAddr(o.shippingAddress))) +
+      fieldRow('Method', esc(o.shippingMethod || 'Standard'));
+
+    const itemsHtml = (o.items || []).map((item) => `
+      <div style="padding:10px 12px;background:var(--color-bg-raised);border-radius:6px;margin-bottom:8px">
+        <div style="font-weight:600;font-size:13px;margin-bottom:4px">${esc(item.itemName)}</div>
+        <div style="font-size:11px;color:var(--color-fg3)">${[item.material, item.color].filter(Boolean).join(' · ')} · Qty ${item.quantity} · $${parseFloat(item.lineTotal).toFixed(2)}</div>
+        <div style="font-size:11px;color:var(--color-fg3);margin-top:3px;word-break:break-all">STL ref: ${esc(item.stlFileRef)}</div>
+      </div>`).join('');
+    document.getElementById('panel-items').innerHTML = itemsHtml || '<div style="color:var(--color-fg3);font-size:13px">No items</div>';
+
+    document.getElementById('status-select').value = o.orderStatus;
+    document.getElementById('tracking-input').value = o.trackingNumber || '';
+    document.getElementById('status-saved').classList.remove('show');
+    document.getElementById('tracking-saved').classList.remove('show');
+
+    document.getElementById('order-overlay').classList.add('open');
+  }
+
+  document.getElementById('btn-close-order').addEventListener('click', () => {
+    document.getElementById('order-overlay').classList.remove('open');
+  });
+  document.getElementById('order-overlay').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('order-overlay')) document.getElementById('order-overlay').classList.remove('open');
+  });
+
+  document.getElementById('btn-save-status').addEventListener('click', async () => {
+    if (!currentOrderId) return;
+    const status = document.getElementById('status-select').value;
+    const res = await apiFetch(`/admin/orders/${currentOrderId}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ orderStatus: status }),
+    });
+    if (res && res.ok) {
+      const saved = document.getElementById('status-saved');
+      saved.classList.add('show');
+      setTimeout(() => saved.classList.remove('show'), 2000);
+      loadOrders(); // refresh table
+    }
+  });
+
+  document.getElementById('btn-save-tracking').addEventListener('click', async () => {
+    if (!currentOrderId) return;
+    const tracking = document.getElementById('tracking-input').value.trim();
+    if (!tracking) return;
+    const res = await apiFetch(`/admin/orders/${currentOrderId}/tracking`, {
+      method: 'PATCH',
+      body: JSON.stringify({ trackingNumber: tracking }),
+    });
+    if (res && res.ok) {
+      const saved = document.getElementById('tracking-saved');
+      saved.classList.add('show');
+      setTimeout(() => saved.classList.remove('show'), 2000);
+      loadOrders();
+    }
+  });
+
+  // ── USERS ─────────────────────────────────────────
+  let usersCache = [];
+  async function loadUsers() {
+    const res = await apiFetch('/admin/users');
+    if (!res) return;
+    usersCache = await res.json();
+    document.getElementById('count-users').textContent = usersCache.length;
+
+    const tbody = document.getElementById('tbody-users');
+    if (!usersCache.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty">No users yet.</td></tr>'; return; }
+
+    tbody.innerHTML = usersCache.map((u) => {
+      const subs = (u.subscriptions || []).filter((s) => s.status === 'active' || s.status === 'trialing');
+      const subText = subs.length ? subs.map((s) => `${s.appId}:${s.tier}`).join(', ') : 'None';
+      return `<tr style="cursor:pointer" data-user-id="${u.id}">
+        <td><span class="mono">${esc(u.email)}</span></td>
+        <td>${esc([u.firstName, u.lastName].filter(Boolean).join(' ')) || '—'}</td>
+        <td>${esc(u.role)}</td>
+        <td style="font-size:12px;color:var(--color-fg3)">${esc(subText)}</td>
+        <td>${fmtDate(u.createdAt)}</td>
+      </tr>`;
+    }).join('');
+
+    tbody.querySelectorAll('tr').forEach((row) => {
+      row.addEventListener('click', () => openUserPanel(row.dataset.userId));
+    });
+  }
+
+  async function openUserPanel(userId) {
+    const res = await apiFetch(`/admin/users/${userId}`);
+    if (!res) return;
+    const u = await res.json();
+
+    document.getElementById('panel-user-email').textContent = u.email;
+
+    document.getElementById('panel-user-info').innerHTML =
+      fieldRow('Name', esc([u.firstName, u.lastName].filter(Boolean).join(' ') || '—')) +
+      fieldRow('Role', esc(u.role)) +
+      fieldRow('Stripe ID', u.stripeCustomerId ? `<span class="mono">${esc(u.stripeCustomerId)}</span>` : '—') +
+      fieldRow('Joined', fmtDate(u.createdAt));
+
+    const subsHtml = (u.subscriptions || []).length
+      ? (u.subscriptions || []).map((s) => `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--color-bg-raised);border-radius:6px;margin-bottom:6px;font-size:12px">
+            <span>${esc(s.appId)} · ${esc(s.tier)}</span>
+            ${subBadge(s.status)}
+          </div>`).join('')
+      : '<div style="color:var(--color-fg3);font-size:13px">No subscriptions</div>';
+    document.getElementById('panel-user-subs').innerHTML = subsHtml;
+
+    const ordersHtml = (u.orders || []).slice(0, 5).length
+      ? (u.orders || []).slice(0, 5).map((o) => `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--color-bg-raised);border-radius:6px;margin-bottom:6px;font-size:12px">
+            <span class="mono">#${o.id.slice(0,8).toUpperCase()}</span>
+            <span>$${parseFloat(o.grandTotal).toFixed(2)}</span>
+            ${orderBadge(o.orderStatus)}
+          </div>`).join('')
+      : '<div style="color:var(--color-fg3);font-size:13px">No orders</div>';
+    document.getElementById('panel-user-orders').innerHTML = ordersHtml;
+
+    document.getElementById('user-overlay').classList.add('open');
+  }
+
+  document.getElementById('btn-close-user').addEventListener('click', () => {
+    document.getElementById('user-overlay').classList.remove('open');
+  });
+  document.getElementById('user-overlay').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('user-overlay')) document.getElementById('user-overlay').classList.remove('open');
+  });
+
+  // ── SUBSCRIPTIONS ─────────────────────────────────
+  async function loadSubscriptions() {
+    const res = await apiFetch('/admin/subscriptions');
+    if (!res) return;
+    const subs = await res.json();
+    document.getElementById('count-subs').textContent = subs.length;
+
+    const tbody = document.getElementById('tbody-subs');
+    if (!subs.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty">No subscriptions yet.</td></tr>'; return; }
+
+    tbody.innerHTML = subs.map((s) => {
+      const name = s.user ? esc([s.user.firstName, s.user.lastName].filter(Boolean).join(' ') || s.user.email) : '—';
+      return `<tr>
+        <td>${name}<br><span class="mono">${esc(s.user?.email || '')}</span></td>
+        <td>${esc(s.appId)}</td>
+        <td style="text-transform:capitalize">${esc(s.tier)}</td>
+        <td>${subBadge(s.status)}</td>
+        <td>${fmtDate(s.currentPeriodEnd)}</td>
+        <td><span class="mono">${esc(s.stripeSubscriptionId || '—')}</span></td>
+      </tr>`;
+    }).join('');
+  }
+
+  // ── APPS ─────────────────────────────────────────
+  async function loadApps() {
+    const tbody = document.getElementById('tbody-apps');
+    try {
+      const res = await apiFetch('/apps');
+      if (!res || !res.ok) { tbody.innerHTML = '<tr><td colspan="4" class="empty">Failed to load apps.</td></tr>'; return; }
+      const apps = await res.json();
+      if (!apps.length) { tbody.innerHTML = '<tr><td colspan="4" class="empty">No apps registered.</td></tr>'; return; }
+
+      tbody.innerHTML = apps.map((a) => `<tr>
+        <td><span class="mono">${esc(a.appId)}</span></td>
+        <td>${esc(a.name)}</td>
+        <td><a href="${esc(a.baseUrl)}" target="_blank" style="color:var(--color-blue-400);font-size:12px">${esc(a.baseUrl)}</a></td>
+        <td><span class="badge ${a.isActive ? 'badge-active' : 'badge-canceled'}">${a.isActive ? 'Active' : 'Inactive'}</span></td>
+      </tr>`).join('');
+    } catch {
+      tbody.innerHTML = '<tr><td colspan="4" class="empty">Failed to load apps.</td></tr>';
+    }
+  }
+
+  // ── FEATURES ──────────────────────────────────────
+  let allFeatures = [];
+  let featureFilter = 'all';
+
+  async function loadFeatures() {
+    const res = await apiFetch('/admin/features');
+    if (!res) return;
+    allFeatures = await res.json();
+    renderFeatures();
+  }
+
+  function renderFeatures() {
+    const list = document.getElementById('features-list');
+    const visible = featureFilter === 'all' ? allFeatures : allFeatures.filter((f) => f.appId === featureFilter);
+    if (!visible.length) { list.innerHTML = '<div class="empty">No features found.</div>'; return; }
+
+    list.innerHTML = visible.map((f) => {
+      const appClass = f.appId === 'cookie' ? 'cookie' : 'terrain3d';
+      const appLabel = f.appId === 'cookie' ? 'Cookie Cutter' : 'Terrain3D';
+      return `
+        <div class="feature-row" data-id="${f.id}">
+          <div class="feature-row-left">
+            <span class="feature-app-dot ${appClass}"></span>
+            <div class="feature-info">
+              <div class="feature-label">
+                ${esc(f.label)}
+                <span class="feature-app-tag ${appClass}">${esc(appLabel)}</span>
+              </div>
+              <div class="feature-desc">${esc(f.description)}</div>
+            </div>
+          </div>
+          <div class="toggle-wrap ${f.isPremium ? 'is-premium' : 'is-free'}" id="toggle-wrap-${f.id}">
+            <span class="toggle-label-free">Free</span>
+            <label class="toggle" title="${f.isPremium ? 'Premium' : 'Free'}">
+              <input type="checkbox" ${f.isPremium ? 'checked' : ''} data-feature-id="${f.id}">
+              <div class="toggle-track"><div class="toggle-thumb"></div></div>
+            </label>
+            <span class="toggle-label-premium">Premium</span>
+          </div>
+        </div>`;
+    }).join('');
+
+    // Wire up toggles
+    list.querySelectorAll('input[type=checkbox][data-feature-id]').forEach((checkbox) => {
+      checkbox.addEventListener('change', async () => {
+        const featureId = checkbox.dataset.featureId;
+        const isPremium = checkbox.checked;
+        const feature = allFeatures.find((f) => f.id === featureId);
+        if (!feature) return;
+
+        // Optimistic UI update
+        feature.isPremium = isPremium;
+        const wrap = document.getElementById(`toggle-wrap-${featureId}`);
+        wrap.classList.toggle('is-premium', isPremium);
+        wrap.classList.toggle('is-free', !isPremium);
+
+        // Persist to API
+        await apiFetch(`/admin/features/${featureId}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ isPremium }),
+        });
+      });
+    });
+  }
+
+  // Feature filter chips
+  document.getElementById('feature-filter-bar').addEventListener('click', (e) => {
+    const btn = e.target.closest('.feature-filter-btn');
+    if (!btn) return;
+    document.querySelectorAll('.feature-filter-btn').forEach((b) => b.classList.remove('active'));
+    btn.classList.add('active');
+    featureFilter = btn.dataset.app;
+    renderFeatures();
+  });
+
+  // ── Load all (verify admin role first) ────────────
+  (async () => {
+    const meRes = await apiFetch('/user/me');
+    if (!meRes) return;
+    const me = await meRes.json();
+    if (me.role !== 'admin' && me.role !== 'super_admin') {
+      document.body.innerHTML = '<div style="padding:80px;text-align:center;color:#FF4D6A;font-family:Orbitron,sans-serif;font-size:18px">Access Denied — Admin only</div>';
+      return;
+    }
+    // Only load data after role is confirmed — never before
+    await Promise.all([loadOrders(), loadUsers(), loadSubscriptions(), loadApps(), loadFeatures()]);
+  })();
+})();
+</script>
+</body>
+</html>

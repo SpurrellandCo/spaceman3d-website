@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orders — SPACEMAN3D</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;800;900&family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <script src="js/config.js"></script>
+  <script src="js/auth-nav.js" defer></script>
+  <style>
+    :root {
+      --color-bg-deep:      #08080F;
+      --color-bg-surface:   #0F1020;
+      --color-bg-raised:    #161830;
+      --color-blue-500:     #2979FF;
+      --color-blue-400:     #5B9BFF;
+      --color-white:        #FFFFFF;
+      --color-fg1:          #E8EDF5;
+      --color-fg2:          #B0BBCC;
+      --color-fg3:          #8892A4;
+      --color-border:       #1E2040;
+      --color-border-strong:#262850;
+      --color-success:      #22D3A4;
+      --color-warning:      #FBBF24;
+      --color-error:        #FF4D6A;
+      --font-display:       'Orbitron', sans-serif;
+      --font-body:          'Inter', sans-serif;
+      --font-mono:          'Space Mono', monospace;
+      --radius-sm:          6px;
+      --radius-md:          12px;
+      --radius-full:        9999px;
+      --transition-fast:    150ms ease-out;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { min-height: 100vh; }
+    body {
+      background: var(--color-bg-deep);
+      font-family: var(--font-body);
+      -webkit-font-smoothing: antialiased;
+      color: var(--color-fg1);
+    }
+
+    /* ── HEADER ── */
+    .header {
+      height: 64px;
+      background: rgba(8,8,15,0.9);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+    .header-logo img { width: 28px; height: 28px; filter: drop-shadow(0 0 8px rgba(41,121,255,0.5)); }
+    .header-wordmark {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--color-white);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .header-wordmark span { color: var(--color-blue-500); }
+    .btn-outline {
+      padding: 7px 16px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--color-border-strong);
+      background: transparent;
+      color: var(--color-fg2);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      transition: border-color var(--transition-fast), color var(--transition-fast);
+    }
+    .btn-outline:hover { border-color: var(--color-blue-500); color: var(--color-blue-400); }
+
+    /* ── MAIN ── */
+    .main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 48px 24px;
+    }
+    .page-title {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      margin-bottom: 4px;
+    }
+    .page-sub { font-size: 14px; color: var(--color-fg3); margin-bottom: 32px; }
+
+    /* ── ORDER LIST ── */
+    .order-list { display: flex; flex-direction: column; gap: 12px; }
+
+    .order-card {
+      background: var(--color-bg-surface);
+      border: 1px solid var(--color-border-strong);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color var(--transition-fast);
+    }
+    .order-card:hover { border-color: var(--color-blue-500); }
+    .order-card.expanded { border-color: var(--color-blue-500); }
+
+    .order-summary {
+      padding: 20px 24px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+    }
+    .order-id {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--color-fg3);
+      margin-bottom: 4px;
+    }
+    .order-date { font-size: 15px; font-weight: 600; color: var(--color-fg1); margin-bottom: 4px; }
+    .order-items-preview { font-size: 13px; color: var(--color-fg3); }
+    .order-right { text-align: right; }
+    .order-total { font-size: 18px; font-weight: 700; color: var(--color-fg1); margin-bottom: 6px; }
+
+    /* Status badges */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .status-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .status-paid          { background: rgba(34,211,164,0.1); border: 1px solid rgba(34,211,164,0.25); color: var(--color-success); }
+    .status-shipped       { background: rgba(41,121,255,0.1); border: 1px solid rgba(41,121,255,0.25); color: var(--color-blue-400); }
+    .status-in_production { background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.25); color: var(--color-warning); }
+    .status-pending_payment { background: rgba(136,146,164,0.1); border: 1px solid rgba(136,146,164,0.2); color: var(--color-fg3); }
+    .status-canceled      { background: rgba(255,77,106,0.1); border: 1px solid rgba(255,77,106,0.2); color: var(--color-error); }
+
+    /* Order detail (collapsible) */
+    .order-detail {
+      display: none;
+      padding: 0 24px 24px;
+      border-top: 1px solid var(--color-border);
+    }
+    .order-card.expanded .order-detail { display: block; }
+
+    .detail-section { margin-top: 20px; }
+    .detail-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--color-fg3);
+      margin-bottom: 10px;
+    }
+    .order-items-list { display: flex; flex-direction: column; gap: 10px; }
+    .order-item {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      padding: 12px 16px;
+      background: var(--color-bg-raised);
+      border-radius: var(--radius-sm);
+    }
+    .item-name { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+    .item-meta { font-size: 12px; color: var(--color-fg3); }
+    .item-price { font-size: 14px; font-weight: 600; text-align: right; }
+    .item-qty { font-size: 12px; color: var(--color-fg3); text-align: right; }
+
+    .shipping-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+    }
+    .shipping-field { }
+    .shipping-field-label { font-size: 11px; color: var(--color-fg3); margin-bottom: 3px; }
+    .shipping-field-value { font-size: 14px; color: var(--color-fg1); }
+
+    .tracking-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      background: rgba(41,121,255,0.06);
+      border: 1px solid rgba(41,121,255,0.2);
+      border-radius: var(--radius-sm);
+    }
+    .tracking-label { font-size: 12px; color: var(--color-fg3); }
+    .tracking-number { font-family: var(--font-mono); font-size: 14px; color: var(--color-blue-400); font-weight: 700; }
+
+    /* Empty / Skeleton */
+    .skeleton {
+      background: linear-gradient(90deg, var(--color-bg-raised) 25%, var(--color-bg-surface) 50%, var(--color-bg-raised) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: var(--radius-sm);
+    }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    .empty {
+      text-align: center;
+      padding: 64px 24px;
+      color: var(--color-fg3);
+    }
+    .empty-title { font-family: var(--font-display); font-size: 16px; color: var(--color-fg2); margin-bottom: 8px; }
+    .empty-sub { font-size: 14px; margin-bottom: 20px; }
+    .btn-primary {
+      padding: 10px 22px;
+      background: var(--color-blue-500);
+      border: none;
+      border-radius: var(--radius-md);
+      color: var(--color-white);
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <a href="/" class="header-logo">
+    <img src="assets/spaceman-logo.png" alt="Spaceman3D">
+    <span class="header-wordmark">SPACEMAN<span>3D</span></span>
+  </a>
+  <div id="auth-nav-slot"></div>
+</header>
+
+<main class="main">
+  <div class="page-title">Order History</div>
+  <p class="page-sub">Your print-on-demand orders.</p>
+
+  <div class="order-list" id="order-list">
+    <div class="skeleton" style="height:80px;margin-bottom:4px"></div>
+    <div class="skeleton" style="height:80px;margin-bottom:4px"></div>
+  </div>
+</main>
+
+<script>
+(function () {
+  const API_URL = window.SM3D_CONFIG?.API_URL || 'https://api.spaceman3d.com';
+
+  // ── Auth guard ────────────────────────────────────
+  if (!localStorage.getItem('access_token')) {
+    window.location.href = '/login.html?redirect=' + encodeURIComponent(window.location.href);
+  }
+
+  function authHeaders() {
+    return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('access_token')}` };
+  }
+
+  async function apiFetch(path) {
+    const res = await fetch(`${API_URL}${path}`, { headers: authHeaders() });
+    if (res.status === 401) {
+      const userId = localStorage.getItem('user_id');
+      const rt = localStorage.getItem('refresh_token');
+      if (!userId || !rt) { redirectLogin(); return null; }
+      const r = await fetch(`${API_URL}/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, refreshToken: rt }),
+      });
+      if (!r.ok) { redirectLogin(); return null; }
+      const { accessToken, refreshToken: newRefresh } = await r.json();
+      localStorage.setItem('access_token', accessToken);
+      localStorage.setItem('refresh_token', newRefresh);
+      return fetch(`${API_URL}${path}`, { headers: authHeaders() });
+    }
+    return res;
+  }
+
+  function redirectLogin() {
+    localStorage.clear();
+    window.location.href = '/login.html';
+  }
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  // ── Status badge ──────────────────────────────────
+  function statusBadge(status) {
+    const labels = {
+      pending_payment: 'Pending',
+      paid: 'Paid',
+      in_production: 'In Production',
+      printed: 'Printed',
+      shipped: 'Shipped',
+      canceled: 'Canceled',
+      refunded: 'Refunded',
+    };
+    return `<span class="status-badge status-${status}">${labels[status] || status}</span>`;
+  }
+
+  // ── Format address ────────────────────────────────
+  function fmtAddress(addr) {
+    if (!addr) return 'N/A';
+    const { line1, line2, city, state, postal_code, country } = addr;
+    return [line1, line2, city, state, postal_code, country].filter(Boolean).map(esc).join(', ');
+  }
+
+  // ── Render orders ─────────────────────────────────
+  function renderOrders(orders) {
+    const list = document.getElementById('order-list');
+    if (!orders || !orders.length) {
+      list.innerHTML = `
+        <div class="empty">
+          <div class="empty-title">No orders yet</div>
+          <div class="empty-sub">Design something and add it to your cart!</div>
+          <a href="https://cookie.spaceman3d.com" class="btn-primary">Open Cookie Cutter</a>
+        </div>`;
+      return;
+    }
+
+    list.innerHTML = orders.map((order) => {
+      const date = new Date(order.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+      const itemNames = (order.items || []).map((i) => esc(i.itemName)).join(', ') || 'No items';
+      const total = `$${parseFloat(order.grandTotal).toFixed(2)}`;
+
+      const itemsHtml = (order.items || []).map((item) => `
+        <div class="order-item">
+          <div>
+            <div class="item-name">${esc(item.itemName)}</div>
+            <div class="item-meta">
+              ${[item.material, item.color].filter(Boolean).map(esc).join(' · ')}
+              ${item.appId ? ` · ${esc(item.appId)}` : ''}
+            </div>
+          </div>
+          <div>
+            <div class="item-price">$${parseFloat(item.lineTotal).toFixed(2)}</div>
+            <div class="item-qty">×${item.quantity} @ $${parseFloat(item.unitPrice).toFixed(2)}</div>
+          </div>
+        </div>`).join('');
+
+      const trackingHtml = order.trackingNumber ? `
+        <div class="detail-section">
+          <div class="detail-label">Tracking</div>
+          <div class="tracking-box">
+            <span class="tracking-label">Tracking #</span>
+            <span class="tracking-number">${esc(order.trackingNumber)}</span>
+          </div>
+        </div>` : '';
+
+      return `
+        <div class="order-card" data-id="${esc(order.id)}">
+          <div class="order-summary">
+            <div>
+              <div class="order-id">#${esc(order.id.slice(0, 8).toUpperCase())}</div>
+              <div class="order-date">${date}</div>
+              <div class="order-items-preview">${itemNames}</div>
+            </div>
+            <div class="order-right">
+              <div class="order-total">${total}</div>
+              ${statusBadge(order.orderStatus)}
+            </div>
+          </div>
+          <div class="order-detail">
+            <div class="detail-section">
+              <div class="detail-label">Items</div>
+              <div class="order-items-list">${itemsHtml}</div>
+            </div>
+            <div class="detail-section">
+              <div class="detail-label">Shipping</div>
+              <div class="shipping-grid">
+                <div class="shipping-field">
+                  <div class="shipping-field-label">Name</div>
+                  <div class="shipping-field-value">${esc(order.shippingName || '—')}</div>
+                </div>
+                <div class="shipping-field">
+                  <div class="shipping-field-label">Address</div>
+                  <div class="shipping-field-value">${fmtAddress(order.shippingAddress)}</div>
+                </div>
+                <div class="shipping-field">
+                  <div class="shipping-field-label">Method</div>
+                  <div class="shipping-field-value">${esc(order.shippingMethod || 'Standard')}</div>
+                </div>
+              </div>
+            </div>
+            ${trackingHtml}
+          </div>
+        </div>`;
+    }).join('');
+
+    // Toggle expand/collapse on click
+    list.querySelectorAll('.order-card').forEach((card) => {
+      card.querySelector('.order-summary').addEventListener('click', () => {
+        card.classList.toggle('expanded');
+      });
+    });
+  }
+
+  // Check for ?payment=success in URL
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('payment') === 'success') {
+    const note = document.createElement('div');
+    note.style.cssText = 'padding:12px 16px;background:rgba(34,211,164,0.1);border:1px solid rgba(34,211,164,0.25);color:#22D3A4;border-radius:6px;font-size:14px;font-weight:600;margin-bottom:20px;';
+    note.textContent = 'Payment successful! Your order has been placed.';
+    document.querySelector('.page-sub').after(note);
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+
+  async function load() {
+    const res = await apiFetch('/orders');
+    if (!res) return;
+    const orders = await res.json();
+    renderOrders(orders);
+  }
+
+  load();
+})();
+</script>
+</body>
+</html>
